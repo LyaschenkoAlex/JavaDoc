@@ -2,7 +2,6 @@ import os
 import shutil
 
 
-
 def create_directories_files():
     try:
         os.makedirs('res')
