@@ -118,7 +118,7 @@ def write_files(directory_src):
       </thead>''')
                     f.write('<tbody>')
                     for i in find_class_interface_enum('class'):
-                        s = ' '.join(i[:-1])
+                        s = ' '.join(i[0:-1])
                         f.write('<tr>')
                         f.write('<td>')
                         f.write(s)
@@ -127,7 +127,7 @@ def write_files(directory_src):
                         if i[-1] == '':
                             f.write('NONE')
                         else:
-                            f.write(i[-1][10:-2].replace('*', '<br>'))
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
                         f.write('</td>')
                         f.write('</tr>')
                     f.write('</tbody></table>')
@@ -152,7 +152,7 @@ def write_files(directory_src):
                         if i[-1] == '':
                             f.write('NONE')
                         else:
-                            f.write(i[-1][10:-2].replace('*', '<br>'))
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
                         f.write('</td>')
                         f.write('</tr>')
                     f.write('</tbody></table>')
@@ -177,11 +177,36 @@ def write_files(directory_src):
                         if i[-1] == '':
                             f.write('NONE')
                         else:
-                            f.write(i[-1][10:-2].replace('*', '<br>'))
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
                         f.write('</td>')
                         f.write('</tr>')
                     f.write('</tbody></table>')
                     f.write('<br>')
+                f.write('<table class="table table-striped">')
+                f.write('''<thead>
+        <tr>
+          <th scope="col">Imports</th>
+          <th scope="col">Comments</th>
+        </tr>
+      </thead>''')
+                f.write('<tbody>')
+                for i in find_imports():
+                    s = ' '.join(i[:-1])
+                    f.write('<tr>')
+                    f.write('<td>')
+                    f.write(s)
+                    f.write('</td>')
+                    f.write('<td>')
+                    if i[-1] == '':
+                        f.write('NONE')
+                    else:
+                        f.write(i[-1][4:-2].replace('*', '<br>'))
+                    f.write('</td>')
+                    f.write('</tr>')
+                f.write('</tbody></table>')
+                f.write('<br>')
+
+
 
                 f.write('<table class="table table-striped"><a name="variable"></a>')
                 f.write('''<thead>
@@ -201,13 +226,41 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
-                        f.write(i[-1][10:-2].replace('*', '<br>'))
+                        f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
                 f.write('</tbody></table>')
 
                 # f.write('VARIABLES - ' + str(find_variables()))
                 f.write('<br>')
+                if find_variables_enum():
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
+        <tr>
+          <th scope="col">Variable enum</th>
+          <th scope="col">Comments</th>
+        </tr>
+      </thead>''')
+                    f.write('<tbody>')
+                    for i in find_variables_enum():
+                        if i.strip() != '':
+                            i = i.strip()
+                            f.write('<tr>')
+                            f.write('<td>')
+                            f.write(i)
+                            f.write('</td>')
+                            f.write('<td>')
+                            f.write('NONE')
+                            f.write('</td>')
+                            f.write('</tr>')
+                    f.write('</tbody></table>')
+                    f.write('<br>')
+
+
+
+
+
+
                 f.write('<table class="table table-striped"><a name="method"></a>')
                 f.write('''<thead>
     <tr>
@@ -226,7 +279,7 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
-                        f.write(i[-1][10:-2].replace('*', '<br>'))
+                        f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
                 f.write('</tbody></table>')
@@ -250,7 +303,7 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
-                        f.write(i[-1][10:-2].replace('*', '<br>'))
+                        f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
                 f.write('</tbody></table>')
