@@ -10,7 +10,9 @@ imports = []
 
 def read_file(path_to_file):
     global comments
+    global constructor
     global java_file
+    constructor = []
     try:
         java_file = open(path_to_file, 'r').read()
     except:
@@ -68,57 +70,42 @@ def read_file(path_to_file):
 
 
 def find_class_interface_enum(class_interface):
-    class_arrays = []
-    class_comments = ''
-    class_array = re.findall(r'[;{}][^;{}]+ ' + class_interface + r' [^{]+[{]', java_file)
-    for i in range(0, len(class_array)):
-        class_array[i] = class_array[i][1:-1].strip()
-        if '*/' in class_array[i]:
-            index = java_file.find(class_array[i])
-            while '/**' not in class_array[i]:
-                index -= 1
-                try:
-                    class_array[i] = java_file[index] + class_array[i]
-                except:
-                    break
-        comment = re.findall(r'/\*\*[^`]+\*/', class_array[i])
-        for j in comment:
-            class_comments += j
-            class_array[i] = class_array[i].replace(j, '')
-        while class_array[i].count('@') != 0:
+    global classname
 
-            index = class_array[i].find('@')
-            left = 0
-            right = 0
-            annotation = class_array[i][index]
-            while (class_array[i][index] != ' ' and right == 0) or (left == 1 and right == 0):
-                index += 1
-                try:
-                    annotation += class_array[i][index]
-                except:
-                    break
-                if class_array[i][index] == '(':
-                    left += 1
-                elif class_array[i][index] == ')':
-                    right += 1
-            class_array[i] = class_array[i].replace(annotation, '')
-        class_array[i] = class_array[i].replace('  ', ' ')
-        class_array[i] = re.sub(r'/\*[^*]+\*/', '', class_array[i]).replace('>', '&gt;').replace('<', '&lt;').strip()
-        class_arrays.append([class_array[i], class_comments.replace('>', '&gt;').replace('<', '&lt;')])
-    if len(class_array) > 0:
-        class_first = class_array[0]
-        index = class_first.find(class_interface)
-        index += len(class_interface) + 1
-        global classname
-        classname = ''
-        t = class_first[index]
-        while index < len(class_first) and class_first[index] not in {' ', '<'}:
-            k = len(class_first)
-            classname += class_first[index]
-            if classname.endswith('&lt;'):
-                classname = classname[:-4]
-                break
-            index += 1
+    class_arrays = []
+
+    classes = re.findall(r'[^;{}]+ '+ class_interface + ' [^{]+', java_file)
+    for i in classes:
+        if ';' not in i:
+
+            if java_file[:java_file.find(i)].count('{') - java_file[:java_file.find(i)].count('}') == 0:
+                comments_c = re.findall(r'~comment\d+~', i)
+                for j in comments_c:
+                    i = i.replace(j, '')
+                classname = i
+                comment = ''
+                i = i + '{'
+                # k = i.find('{')
+                # p = i.find('<')
+                # if p!= -1 and p < k:
+                #     k = p
+                # k -= 1
+                # if i[k] != ' ':
+                #     while i[k] != ' ':
+                #         classname += i[k]
+                #         k -= 1
+                # else:
+                #     while i[k] == ' ':
+                #         k -= 1
+                #     while i[k] != ' ':
+                #         classname += i[k]
+                #         k -= 1
+                i = i[:-1]
+                if len(comments_c) > 0:
+                    comment = comments[int(comments_c[-1][8:-1])]
+                    i = i.replace('<', '&lt;').replace('>', '&gt;')
+                    comment = comment.replace('<', '&lt;').replace('>', '&gt;')
+                class_arrays.append([i.strip(), comment])
     return class_arrays
 
 
@@ -138,6 +125,8 @@ def find_variables():
                 comment = ''
                 if len(comments_v) > 0:
                     comment = comments[int(comments_v[-1][8:-1])]
+                i = i.replace('<', '&lt;').replace('>', '&gt;')
+                comment = comment.replace('<', '&lt;').replace('>', '&gt;')
                 variables_arr.append([i.strip(), comment])
     return variables_arr
 
@@ -148,19 +137,52 @@ def find_methods():
     for i in methods:
         i = i[:-1]
         if java_file[:java_file.find(i)].count('{') - java_file[:java_file.find(i)].count('}') == 1 and '=' not in i:
-            if ')' in i:
+            if ')' in i and '(' in i:
+
                 comments_v = re.findall(r'~comment\d+~', i)
                 for j in comments_v:
                     i = i.replace(j, '')
                 comment = ''
                 if len(comments_v) > 0:
                     comment = comments[int(comments_v[-1][8:-1])]
-                methods_arr.append([i.strip(), comment])
+                index = i.find('(')
+                index -= 1
+                method_name = ''
+                if i[index] != ' ':
+                    while i[index] != ' ':
+                        method_name += i[index]
+                        index -= 1
+                else:
+                    while i[index] == ' ':
+                        index -= 1
+                    while i[index] != ' ':
+                        method_name += i[index]
+                        index -= 1
+                i = i.replace('<', '&lt;').replace('>', '&gt;')
+                comment = comment.replace('<', '&lt;').replace('>', '&gt;')
+                if method_name[::-1] not in classname:
+                    methods_arr.append([i.strip(), comment])
+                else:
+                    global constructor
+                    constructor.append([i.strip(), comment])
+
+
     return methods_arr
 
 
 def find_constructors():
-    return last_constructor
+    global java_file
+    global comments
+    global classname
+    global last_constructor
+    global imports
+    java_file = ''
+    comments = []
+    classname = ''
+    last_constructor = []
+    imports = []
+    global constructor
+    return constructor
 
 
 def find_imports():
@@ -194,7 +216,7 @@ def find_variables_enum():
 
 
 if __name__ == '__main__':
-    read_file("src/guava-master/android/guava/src/com/google/common/base/Absent.java")
+    read_file("src/main/java/com/pubnub/api/endpoints/presence/Leave.java")
     print(find_class_interface_enum('class'))
     print(find_class_interface_enum('interface'))
     print(find_class_interface_enum('enum'))
@@ -202,3 +224,4 @@ if __name__ == '__main__':
     print(find_variables())
     print(find_imports())
     print(find_methods())
+    print(find_constructors())

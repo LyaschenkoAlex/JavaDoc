@@ -150,80 +150,78 @@ def write_files(directory_src):
                 f.write('&nbsp;<a href="#constructor">constructors</a>')
                 f.write('<br>')
                 f.write('<br>')
-                if find_class_interface_enum('class'):
-                    f.write('<table class="table table-striped">')
-                    f.write('''<thead>
-        <tr>
-          <th scope="col">Class</th>
-          <th scope="col">Comments</th>
-        </tr>
-      </thead>''')
-                    f.write('<tbody>')
-                    for i in find_class_interface_enum('class'):
-                        s = ' '.join(i[0:-1])
-                        f.write('<tr>')
-                        f.write('<td>')
-                        f.write(s)
-                        f.write('</td>')
-                        f.write('<td>')
-                        if i[-1] == '':
-                            f.write('NONE')
-                        else:
-                            f.write(i[-1][4:-2].replace('*', '<br>'))
-                        f.write('</td>')
-                        f.write('</tr>')
+
+                f.write('<table class="table table-striped">')
+                f.write('''<thead>
+    <tr>
+      <th scope="col">Class</th>
+      <th scope="col">Comments</th>
+    </tr>
+  </thead>''')
+                f.write('<tbody>')
+                for i in find_class_interface_enum('class'):
+                    s = ' '.join(i[0:-1])
+                    f.write('<tr>')
+                    f.write('<td>')
+                    f.write(s)
+                    f.write('</td>')
+                    f.write('<td>')
+                    if i[-1] == '':
+                        f.write('NONE')
+                    else:
+                        f.write(i[-1][4:-2].replace('*', '<br>'))
+                    f.write('</td>')
+                    f.write('</tr>')
+                f.write('</tbody></table>')
+                f.write('<br>')
+
+                f.write('<table class="table table-striped">')
+                f.write('''<thead>
+    <tr>
+      <th scope="col">enum</th>
+      <th scope="col">Comments</th>
+    </tr>
+  </thead>''')
+                f.write('<tbody>')
+                for i in find_class_interface_enum('enum'):
+                    s = ' '.join(i[:-1])
+                    f.write('<tr>')
+                    f.write('<td>')
+                    f.write(s)
+                    f.write('</td>')
+                    f.write('<td>')
+                    if i[-1] == '':
+                        f.write('NONE')
+                    else:
+                        f.write(i[-1][4:-2].replace('*', '<br>'))
+                    f.write('</td>')
+                    f.write('</tr>')
                     f.write('</tbody></table>')
                     f.write('<br>')
 
-                if find_class_interface_enum('enum'):
-                    f.write('<table class="table table-striped">')
-                    f.write('''<thead>
-        <tr>
-          <th scope="col">enum</th>
-          <th scope="col">Comments</th>
-        </tr>
-      </thead>''')
-                    f.write('<tbody>')
-                    for i in find_class_interface_enum('enum'):
-                        s = ' '.join(i[:-1])
-                        f.write('<tr>')
-                        f.write('<td>')
-                        f.write(s)
-                        f.write('</td>')
-                        f.write('<td>')
-                        if i[-1] == '':
-                            f.write('NONE')
-                        else:
-                            f.write(i[-1][4:-2].replace('*', '<br>'))
-                        f.write('</td>')
-                        f.write('</tr>')
-                    f.write('</tbody></table>')
-                    f.write('<br>')
-
-                if find_class_interface_enum('interface'):
-                    f.write('<table class="table table-striped">')
-                    f.write('''<thead>
-        <tr>
-          <th scope="col">Interface</th>
-          <th scope="col">Comments</th>
-        </tr>
-      </thead>''')
-                    f.write('<tbody>')
-                    for i in find_class_interface_enum('interface'):
-                        s = ' '.join(i[:-1])
-                        f.write('<tr>')
-                        f.write('<td>')
-                        f.write(s)
-                        f.write('</td>')
-                        f.write('<td>')
-                        if i[-1] == '':
-                            f.write('NONE')
-                        else:
-                            f.write(i[-1][4:-2].replace('*', '<br>'))
-                        f.write('</td>')
-                        f.write('</tr>')
-                    f.write('</tbody></table>')
-                    f.write('<br>')
+                f.write('<table class="table table-striped">')
+                f.write('''<thead>
+    <tr>
+      <th scope="col">Interface</th>
+      <th scope="col">Comments</th>
+    </tr>
+  </thead>''')
+                f.write('<tbody>')
+                for i in find_class_interface_enum('interface'):
+                    s = ' '.join(i[:-1])
+                    f.write('<tr>')
+                    f.write('<td>')
+                    f.write(s)
+                    f.write('</td>')
+                    f.write('<td>')
+                    if i[-1] == '':
+                        f.write('NONE')
+                    else:
+                        f.write(i[-1][4:-2].replace('*', '<br>'))
+                    f.write('</td>')
+                    f.write('</tr>')
+                f.write('</tbody></table>')
+                f.write('<br>')
                 f.write('<table class="table table-striped">')
                 f.write('''<thead>
         <tr>
@@ -327,10 +325,9 @@ def write_files(directory_src):
   </thead>''')
                 f.write('<tbody>')
                 for i in find_constructors():
-                    s = ' '.join(i[:-1])
                     f.write('<tr>')
                     f.write('<td>')
-                    f.write(s)
+                    f.write(i[0])
                     f.write('</td>')
                     f.write('<td>')
                     if i[-1] == '':
