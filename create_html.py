@@ -1,5 +1,6 @@
 import os
 from parse_java import *
+from parseDirectoryTree import *
 
 left_block = ''
 
@@ -28,9 +29,9 @@ def create_index(directory_dirs, directory_files):
         global left_block
 
         for file in files:
-            left_block += '<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('_', '/')[
+            left_block += '<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('-', '/')[
                                                                                               :-5] + '</a>'
-            f.write('<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('_', '/')[
+            f.write('<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('-', '/')[
                                                                                         :-5] + '</a>')
     f.write('''          
         </div>
@@ -38,10 +39,51 @@ def create_index(directory_dirs, directory_files):
         <h4>All classes</h4>''')
     for root, dirs, files in os.walk(directory_files):
         for file in files:
-            f.write('<a href="files/' + file + '" style="width:auto; font-size:12px"> ' + file.replace('_', '/')[
+            f.write('<a href="files/' + file + '" style="width:auto; font-size:12px"> ' + file.replace('-', '/')[
                                                                                           :-5] + '.java</a>')
     f.write('''
         </div>
+        <div class="col-sm-2 list-group" style="overflow:auto;">
+        <h4>Alphabetical index</h4>''')
+    alphabet_set = set()
+    alphabet_dict = {}
+    for root, dirs, files in os.walk(directory_files):
+        for file in files:
+            alphabet_set.add(str(file.split('-')[-1][0]))
+
+            try:
+                alphabet_dict[str(file.split('-')[-1][0])] += ' ' + str(file.split('/')[-1])
+            except:
+                alphabet_dict[str(file.split('-')[-1][0])] = '' + str(file.split('/')[-1])
+    alphabet_set = sorted(alphabet_set)
+    for key in alphabet_dict:
+        f1 = open('res/alphabetical_index/' + key + '.html', "w")
+        f1.write('''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>''')
+        f1.write('<a href="../index.html">All packages</a>')
+        href_arr = alphabet_dict[key].split(' ')
+        f1.write('<ul class="list-group">')
+        for i in href_arr:
+            f1.write(
+                '<li class="list-group-item"><a href="../files/' + i + '"class="btn btn-default">' + i.replace('-','/')[:-5] + '.java</a></li>')
+        f1.write('</ul>')
+        f1.write('</body>')
+        f1.close()
+
+    for i in alphabet_set:
+        f.write(
+            '<a href="alphabetical_index/' + i.upper() + '.html' + '" style="width:auto; font-size:12px">' + i.upper() + '</a>')
+    f.write('''</div>
     </div>
 </div>
 
@@ -52,7 +94,7 @@ def create_index(directory_dirs, directory_files):
 
 def show_classes_in_package(directory_dirs):
     for root, dirs, files in os.walk(directory_dirs):
-        f = open('res/dirs/' + root.replace('\\', '_') + '.html', "w")
+        f = open('res/dirs/' + root.replace('\\', '-') + '.html', "w")
         f.write('''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +114,7 @@ def show_classes_in_package(directory_dirs):
     ''')
         f.write('<a href="../index.html"> All packages</a></div>' + '<br><br><h4>Directory -> ' + root + '</h4><ul>')
         for file in files:
-            f.write('<li><a href="../files/' + root.replace('\\', '_') + '_' + file.replace('\\', '_')[
+            f.write('<li><a href="../files/' + root.replace('\\', '-') + '-' + file.replace('\\', '-')[
                                                                                :-5] + '.html">' + file + '</a></li>')
         f.write('''</ul>
     </div>
@@ -87,7 +129,7 @@ def write_files(directory_src):
     for root, dirs, files in os.walk(directory_src):
         for file in files:
             if file.endswith('.java'):
-                f = open('res/files/' + root.replace('\\', '_') + '_' + file[:-5] + '.html', 'w')
+                f = open('res/files/' + root.replace('\\', '-') + '-' + file[:-5] + '.html', 'w')
                 read_file(root + '\\' + file)
                 f.write('''<!DOCTYPE html>
 <html lang="en">
@@ -206,8 +248,6 @@ def write_files(directory_src):
                 f.write('</tbody></table>')
                 f.write('<br>')
 
-
-
                 f.write('<table class="table table-striped"><a name="variable"></a>')
                 f.write('''<thead>
     <tr>
@@ -255,11 +295,6 @@ def write_files(directory_src):
                             f.write('</tr>')
                     f.write('</tbody></table>')
                     f.write('<br>')
-
-
-
-
-
 
                 f.write('<table class="table table-striped"><a name="method"></a>')
                 f.write('''<thead>
@@ -314,6 +349,7 @@ def write_files(directory_src):
 
 
 if __name__ == '__main__':
+    create_directories_files()
     create_index('res/dirs', 'res/files')
     show_classes_in_package('src')
     write_files('src')

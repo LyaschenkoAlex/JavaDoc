@@ -16,13 +16,55 @@ def read_file(path_to_file):
         ans = ''
         while not ans.endswith('*/'):
             ans += java_file[index]
-            index+=1
-        java_file = java_file.replace(ans,'')
+            index += 1
+        java_file = java_file.replace(ans, '')
     print(java_file)
 
     print(java_file.count('/*\n'))
-    java_file = re.sub(r'//[^\n]+\n', '', java_file)
+    java_file = re.sub(r'[\n ]//[^\n]+', '\n', java_file)
     java_file = java_file.replace('\n', ' ')
+
+    c=False
+    new_java_file = ''
+    left = 0
+    right = 0
+    for i in range(len(java_file)):
+        if not ((java_file[i] != ' ' and right == 0) or (left == 1 and right == 0)) and c == True:
+            c = False
+            left = 0
+            right = 0
+        s = ''
+        if java_file[i] == '@' and java_file[:i].count('/**') == java_file[:i].count('*/'):
+            c = True
+        if c and java_file[i] == '(':
+            left += 1
+        if c and java_file[i] == ')':
+            right += 1
+        if not c:
+            new_java_file += java_file[i]
+    java_file = new_java_file
+    print('fjowe')
+
+
+    index = 0
+    # while java_file[index:].count('@') != 0:
+    #     p = index
+    #     index = java_file[index:].find('@') + p
+    #     if java_file[:index].count('/**') != java_file[:index].count('*/'):
+    #         index += 1
+    #         continue
+    #     left = 0
+    #     right = 0
+    #     annotation = java_file[index]
+    #     while (java_file[index] != ' ' and right == 0) or (left == 1 and right == 0):
+    #         index += 1
+    #         annotation += java_file[index]
+    #         if java_file[index] == '(':
+    #             left += 1
+    #         elif java_file[index] == ')':
+    #             right += 1
+    #     java_file = java_file.replace(annotation, '')
+
 
 
 def find_class_interface_enum(class_interface):
@@ -95,13 +137,13 @@ def find_variables():
                     right += 1
             first_variables = first_variables.replace(annotation, '')
 
-
         # for j in p:
         #     if '@' in j:
         #         first_variables_new = first_variables.replace(j, '')
-        if (first_variables.count('(') == 0  or first_variables[:first_variables.find('=')].count('(')==0) and java_file[:java_file.index(t)].count('{') - java_file[
-                                                                                                         :java_file.index(
-                                                                                                             t)].count(
+        if (first_variables.count('(') == 0 or first_variables[:first_variables.find('=')].count(
+                '(') == 0) and java_file[:java_file.index(t)].count('{') - java_file[
+                                                                           :java_file.index(
+                                                                               t)].count(
             '}') == 1 and java_file[:java_file.index(t)].count('"') % 2 == 0:
             first_variables = re.findall(r'[{][^;]*[;]', java_file)[0][1:]
 
@@ -147,16 +189,15 @@ def find_variables():
                     left += 1
                 elif i[index] == ')':
                     right += 1
-            i =i.replace(annotation, '')
-
-
-
+            i = i.replace(annotation, '')
 
         # for j in p:
         #     if '@' in j:
         #         i = i.replace(j, '')
         if i != '' and t != ';;' and (('"' not in i and "/" not in i) or '=' in i):
-            if (')' not in i or ')' not in i[:i.find('=')])and java_file[:java_file.index(t)].count('{') - java_file[:java_file.index(t)].count(
+            if (')' not in i or ')' not in i[:i.find('=')]) and java_file[:java_file.index(t)].count('{') - java_file[
+                                                                                                            :java_file.index(
+                                                                                                                    t)].count(
                     '}') == 1:
                 if '=' in i:
                     i = i[:i.find('=')]
@@ -171,24 +212,7 @@ def find_methods():
     global java_array
     global constructor
     ################
-    index = 0
-    # while java_file[index:].count('@') != 0:
-    #     p = index
-    #     index = java_file[index:].find('@') + p
-    #     if java_file[:index].count('/**') != java_file[:index].count('*/'):
-    #         index += 1
-    #         continue
-    #     left = 0
-    #     right = 0
-    #     annotation = java_file[index]
-    #     while (java_file[index] != ' ' and right == 0) or (left == 1 and right == 0):
-    #         index += 1
-    #         annotation += java_file[index]
-    #         if java_file[index] == '(':
-    #             left += 1
-    #         elif java_file[index] == ')':
-    #             right += 1
-    #     java_file = java_file.replace(annotation, '')
+
 
     ############
     methods_arr = []
@@ -200,7 +224,6 @@ def find_methods():
         start_index = start_index + java_file[start_index:].find(i)
         min_index = start_index - 1
         max_index = start_index + len(i)
-
 
         while java_file[min_index] not in ('{', '}', ')', ')', ';', '/'):
             if min_index == 0:
@@ -278,9 +301,9 @@ def find_methods():
                     if not is_comment and (java_file[j] == '{' or java_file[j] == '}' or java_file == ';'):
                         break
 
-
                 try:
-                    if (method_name or method_str or method_return_type) in {'switch', 'for', 'while', 'new', 'synchronized'} or 'switch' in arr_method or 'for' in arr_method or 'while' in arr_method or 'new' in arr_method or '&' in in_brackets:
+                    if (method_name or method_str or method_return_type) in {'switch', 'for', 'while', 'new',
+                                                                             'synchronized'} or 'switch' in arr_method or 'for' in arr_method or 'while' in arr_method or 'new' in arr_method or '&' in in_brackets:
                         continue
                     method_comments = method_comments[::-1]
                     modifiers = modifiers.replace('>', '&gt;').replace('<', '&lt;').strip()
@@ -345,7 +368,7 @@ def find_variables_enum():
 
 
 if __name__ == '__main__':
-    read_file("src/com/pubnub/api/endpoints/Endpoint.java")
+    read_file("src/com/pubnub/api/vendor/Base64.java")
     find_class_interface_enum('class')
     find_class_interface_enum('interface')
     find_class_interface_enum('enum')
