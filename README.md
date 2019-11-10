@@ -1,7 +1,7 @@
 "# JavaDoc" <br>
 Final version of JavaDoc
 <br>
-Paste your source code or .java file into src folder,
+Create src folder in directory with .py files. Paste your source code or .java file into src folder,
 then run create_html.py without any parameters
 <br>
 Program will create res folder. In this folder you should open index.html

@@ -257,10 +257,9 @@ def write_files(directory_src):
   </thead>''')
                 f.write('<tbody>')
                 for i in find_variables():
-                    s = ' '.join(i[:-1])
                     f.write('<tr>')
                     f.write('<td>')
-                    f.write(s)
+                    f.write(i[0])
                     f.write('</td>')
                     f.write('<td>')
                     if i[-1] == '':
@@ -305,10 +304,9 @@ def write_files(directory_src):
   </thead>''')
                 f.write('<tbody>')
                 for i in find_methods():
-                    s = ' '.join(i[:-1])
                     f.write('<tr>')
                     f.write('<td>')
-                    f.write(s)
+                    f.write(i[0])
                     f.write('</td>')
                     f.write('<td>')
                     if i[-1] == '':

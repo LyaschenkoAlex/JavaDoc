@@ -1,6 +1,7 @@
 import re
 
 java_file = ''
+comments = []
 classname = ''
 constructor = []
 last_constructor = []
@@ -8,8 +9,12 @@ imports = []
 
 
 def read_file(path_to_file):
+    global comments
     global java_file
-    java_file = open(path_to_file, 'r').read()
+    try:
+        java_file = open(path_to_file, 'r').read()
+    except:
+        java_file = ''
     ans = ''
     while java_file.count('/*\n') != 0:
         index = java_file.find('/*\n')
@@ -18,11 +23,28 @@ def read_file(path_to_file):
             ans += java_file[index]
             index += 1
         java_file = java_file.replace(ans, '')
-    print(java_file)
+    new_java = ''
+    right = 0
+    left = 0
+    for i in range(len(java_file)):
 
-    print(java_file.count('/*\n'))
+        if java_file[i] == '}' and java_file[:i].count('/**') == java_file[:i].count('*/'):
+            left += 1
+        if right - left < 2:
+            new_java+=java_file[i]
+        if java_file[i] == '{' and java_file[:i].count('/**') == java_file[:i].count('*/'):
+            right += 1
+    java_file = new_java
     java_file = re.sub(r'[\n ]//[^\n]+', '\n', java_file)
     java_file = java_file.replace('\n', ' ')
+    while '/**' in java_file:
+        s = ''
+        index = java_file.find('/**')
+        while not s.endswith('*/'):
+            s += java_file[index]
+            index += 1
+        comments.append(s)
+        java_file = java_file.replace(s, '~comment' + str(len(comments) - 1) + '~')
 
     c=False
     new_java_file = ''
@@ -43,28 +65,6 @@ def read_file(path_to_file):
         if not c:
             new_java_file += java_file[i]
     java_file = new_java_file
-    print('fjowe')
-
-
-    index = 0
-    # while java_file[index:].count('@') != 0:
-    #     p = index
-    #     index = java_file[index:].find('@') + p
-    #     if java_file[:index].count('/**') != java_file[:index].count('*/'):
-    #         index += 1
-    #         continue
-    #     left = 0
-    #     right = 0
-    #     annotation = java_file[index]
-    #     while (java_file[index] != ' ' and right == 0) or (left == 1 and right == 0):
-    #         index += 1
-    #         annotation += java_file[index]
-    #         if java_file[index] == '(':
-    #             left += 1
-    #         elif java_file[index] == ')':
-    #             right += 1
-    #     java_file = java_file.replace(annotation, '')
-
 
 
 def find_class_interface_enum(class_interface):
@@ -73,6 +73,14 @@ def find_class_interface_enum(class_interface):
     class_array = re.findall(r'[;{}][^;{}]+ ' + class_interface + r' [^{]+[{]', java_file)
     for i in range(0, len(class_array)):
         class_array[i] = class_array[i][1:-1].strip()
+        if '*/' in class_array[i]:
+            index = java_file.find(class_array[i])
+            while '/**' not in class_array[i]:
+                index -= 1
+                try:
+                    class_array[i] = java_file[index] + class_array[i]
+                except:
+                    break
         comment = re.findall(r'/\*\*[^`]+\*/', class_array[i])
         for j in comment:
             class_comments += j
@@ -85,7 +93,10 @@ def find_class_interface_enum(class_interface):
             annotation = class_array[i][index]
             while (class_array[i][index] != ' ' and right == 0) or (left == 1 and right == 0):
                 index += 1
-                annotation += class_array[i][index]
+                try:
+                    annotation += class_array[i][index]
+                except:
+                    break
                 if class_array[i][index] == '(':
                     left += 1
                 elif class_array[i][index] == ')':
@@ -113,223 +124,38 @@ def find_class_interface_enum(class_interface):
 
 def find_variables():
     variables_arr = []
-    try:
-        first_variables = re.findall(r'[{][^;]*[;]', java_file)[0][1:]
-        t = first_variables
-        p = first_variables.split(' ')
-        comments = re.findall(r'/\*\*[^`]+\*/', first_variables)
-        for i in comments:
-            first_variables = first_variables.replace(i, '')
-
-        ###################
-        index = 0
-        while first_variables.count('@') != 0:
-            index = first_variables.find('@')
-            left = 0
-            right = 0
-            annotation = first_variables[index]
-            while (first_variables[index] != ' ' and right == 0) or (left == 1 and right == 0):
-                index += 1
-                annotation += first_variables[index]
-                if first_variables[index] == '(':
-                    left += 1
-                elif first_variables[index] == ')':
-                    right += 1
-            first_variables = first_variables.replace(annotation, '')
-
-        # for j in p:
-        #     if '@' in j:
-        #         first_variables_new = first_variables.replace(j, '')
-        if (first_variables.count('(') == 0 or first_variables[:first_variables.find('=')].count(
-                '(') == 0) and java_file[:java_file.index(t)].count('{') - java_file[
-                                                                           :java_file.index(
-                                                                               t)].count(
-            '}') == 1 and java_file[:java_file.index(t)].count('"') % 2 == 0:
-            first_variables = re.findall(r'[{][^;]*[;]', java_file)[0][1:]
-
-            p = first_variables.split(' ')
-            comment = ''
-            for j in comments:
-                first_variables = first_variables.replace(j, '')
-                comment += j
-            for j in p:
-                if '@' in j:
-                    first_variables = first_variables.replace(j, '')
-            if '=' in first_variables:
-                first_variables = first_variables[:first_variables.find('=')]
-            variables_arr.append(
-                [first_variables.replace('>', '&gt;').replace('<', '&lt;').replace(';', '').strip(), comment])
-    except:
-        print('no variables')
-    s = java_file[java_file.index('{'):]
-    a = re.findall(r'[;][^;]+[;]', java_file.replace(';', ';;')[java_file.replace(';', ';;').index('{'):])
-    for i in re.findall(r'[;][^;]+[;]', java_file.replace(';', ';;')[java_file.replace(';', ';;').index('{'):]):
-
-        p = i.split(' ')
-        t = i
-
-        comments = re.findall(r'/\*\*[^`]+\*/', i)
-        comment = ''
-        for j in comments:
-            i = i.replace(j, '')
-            comment += j
-        #################
-        index = 0
-        while i.count('@') != 0:
-            index = i.find('@')
-            left = 0
-            right = 0
-            annotation = i[index]
-            while (i[index] != ' ' and right == 0) or (left == 1 and right == 0):
-                index += 1
-                if len(i) == index:
-                    break;
-                annotation += i[index]
-                if i[index] == '(':
-                    left += 1
-                elif i[index] == ')':
-                    right += 1
-            i = i.replace(annotation, '')
-
-        # for j in p:
-        #     if '@' in j:
-        #         i = i.replace(j, '')
-        if i != '' and t != ';;' and (('"' not in i and "/" not in i) or '=' in i):
-            if (')' not in i or ')' not in i[:i.find('=')]) and java_file[:java_file.index(t)].count('{') - java_file[
-                                                                                                            :java_file.index(
-                                                                                                                    t)].count(
-                    '}') == 1:
-                if '=' in i:
-                    i = i[:i.find('=')]
-                variables_arr.append([i.replace('>', '&gt;').replace('<', '&lt;').replace(';', '').strip(),
-                                      comment.replace('>', '&gt;').replace('<', '&lt;').replace(';', '').strip()])
-
+    variables = re.findall(r'[^;{}]*[;=]', java_file)
+    for i in variables:
+        if '=' in i:
+            i = i[:i.find('=')]
+        if '(' not in i:
+            if java_file[:java_file.find(i)].count('{') - java_file[:java_file.find(i)].count('}') == 1:
+                if i.endswith('='):
+                    i = i[:-1] + ';'
+                comments_v = re.findall(r'~comment\d+~', i)
+                for j in comments_v:
+                    i = i.replace(j, '')
+                comment = ''
+                if len(comments_v) > 0:
+                    comment = comments[int(comments_v[-1][8:-1])]
+                variables_arr.append([i.strip(), comment])
     return variables_arr
 
 
 def find_methods():
-    global java_file
-    global java_array
-    global constructor
-    ################
-
-
-    ############
     methods_arr = []
-    start_index = -1
-    for i in re.findall(r'[(][^)]*[)]', java_file):
-        method_comments = ''
-        method_modifier_arr = []
-        start_index += 1
-        start_index = start_index + java_file[start_index:].find(i)
-        min_index = start_index - 1
-        max_index = start_index + len(i)
-
-        while java_file[min_index] not in ('{', '}', ')', ')', ';', '/'):
-            if min_index == 0:
-                break
-            min_index -= 1
-            a = java_file[min_index:max_index]
-
-        while java_file[max_index] not in ('{', '}', ')', ')', ';' '/'):
-            if java_file[min_index: max_index].endswith(';') or java_file[min_index: max_index].endswith('{'):
-                break
-            if max_index == len(java_file) - 1:
-                break
-            max_index += 1
-            a = java_file[min_index:max_index]
-        min_index += 1
-        q = java_file.find(java_file[min_index:max_index])
-        # if java_file[:q + 1].count('{') - 1 != java_file[:q + 1].count('}'):
-        #     break
-
-        method_str = java_file[min_index: max_index].strip()
-        if (method_str.endswith('{') or method_str.endswith(';') or java_file[max_index] == '{') and method_str.count(
-                '(') == 1 and method_str.count(
-            ')') == 1 and '.' not in method_str and '*' not in method_str:
-            arr_method = method_str.split(' ')
-            if 'for' not in arr_method and 'if' not in arr_method and 'catch' not in arr_method and '=' not in arr_method:
-                left_bracket = method_str.find('(')
-                right_bracket = method_str.find(')')
-                in_brackets = method_str[left_bracket: right_bracket + 1]
-                throws = method_str[right_bracket + 1:]
-                method_str = method_str[:left_bracket]
-                method_str = re.sub(r'[ ]+', ' ', method_str)
-                method_arr = method_str.split(' ')
-                if len(method_arr) < 2:
-                    continue
-                method_name = method_arr[-1]
-                method_str = method_str[:method_str.rfind(' ')]
-                if method_str.endswith(' '):
-                    method_str = method_str[:-1]
-                if method_str.endswith('>'):
-                    left_index = method_str.find('<')
-                    type_brackets = method_str[left_index:]
-                    method_str = method_str[:left_index]
-                    method_arr = method_str.split(' ')
-                    method_return_type = method_arr[-1] + type_brackets
-                    method_arr.append('')
-                else:
-                    if len(method_arr) == 1:
-                        method_return_type = ''
-                        continue
-                    else:
-                        method_return_type = method_arr[-2]
-                modifiers = ''
-                if len(method_arr) >= 2:
-                    index = 3
-                    while len(method_arr) >= index:
-                        if method_arr[-index] in (
-                                'abstract', 'final', 'static', 'native', 'synchronized', 'public', 'protected',
-                                'private'):
-                            method_modifier_arr.append(method_arr[-index])
-                        index += 1
-                    method_modifier_arr.reverse()
-                    modifiers = ' '.join(method_modifier_arr)
-                throws = throws.strip()
-                is_comment = False
-                for j in range(min_index, -1, -1):
-                    if len(method_comments) == 2 and method_comments[1] != '*':
-                        is_comment = False
-                        method_comments = ''
-                    if java_file[j] == '/':
-                        is_comment = True
-                    if is_comment:
-                        method_comments += java_file[j]
-                    if method_comments.endswith('**/'):
-                        break
-                    if not is_comment and (java_file[j] == '{' or java_file[j] == '}' or java_file == ';'):
-                        break
-
-                try:
-                    if (method_name or method_str or method_return_type) in {'switch', 'for', 'while', 'new',
-                                                                             'synchronized'} or 'switch' in arr_method or 'for' in arr_method or 'while' in arr_method or 'new' in arr_method or '&' in in_brackets:
-                        continue
-                    method_comments = method_comments[::-1]
-                    modifiers = modifiers.replace('>', '&gt;').replace('<', '&lt;').strip()
-                    method_return_type = method_return_type.replace('>', '&gt;').replace('<', '&lt;').strip()
-                    method_name = method_name.replace('>', '&gt;').replace('<', '&lt;').strip()
-                    in_brackets = in_brackets.replace('>', '&gt;').replace('<', '&lt;').strip()
-                    throws = throws.replace('>', '&gt;').replace('<', '&lt;').strip()
-                    method_comments = method_comments.replace('>', '&gt;').replace('<', '&lt;').strip()
-                    if re.sub(r'&lt;[^1]+&gt;', '', method_name) == re.sub(r'&lt;[^1]+&gt;', '', classname):
-                        global constructor
-                        constructor.append(
-                            [modifiers, method_return_type, method_name, in_brackets, throws, method_comments])
-                    else:
-                        methods_arr.append(
-                            [modifiers, method_return_type, method_name, in_brackets, throws, method_comments])
-
-                except:
-                    methods_arr.append(
-                        [modifiers, method_return_type, method_name, in_brackets, throws, method_comments])
-
-    java_file = ''
-    java_array = []
-    global last_constructor
-    last_constructor = constructor
-    constructor = []
-
+    methods = re.findall(r'[^;{}]*[;{]', java_file)
+    for i in methods:
+        i = i[:-1]
+        if java_file[:java_file.find(i)].count('{') - java_file[:java_file.find(i)].count('}') == 1 and '=' not in i:
+            if ')' in i:
+                comments_v = re.findall(r'~comment\d+~', i)
+                for j in comments_v:
+                    i = i.replace(j, '')
+                comment = ''
+                if len(comments_v) > 0:
+                    comment = comments[int(comments_v[-1][8:-1])]
+                methods_arr.append([i.strip(), comment])
     return methods_arr
 
 
@@ -368,14 +194,11 @@ def find_variables_enum():
 
 
 if __name__ == '__main__':
-    read_file("src/com/pubnub/api/vendor/Base64.java")
-    find_class_interface_enum('class')
-    find_class_interface_enum('interface')
-    find_class_interface_enum('enum')
-    find_variables_enum()
-    find_variables()
-    find_imports()
-
-    find_methods()
-
-    find_constructors()
+    read_file("src/guava-master/android/guava/src/com/google/common/base/Absent.java")
+    print(find_class_interface_enum('class'))
+    print(find_class_interface_enum('interface'))
+    print(find_class_interface_enum('enum'))
+    print(find_variables_enum())
+    print(find_variables())
+    print(find_imports())
+    print(find_methods())
