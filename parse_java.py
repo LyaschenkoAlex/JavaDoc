@@ -113,21 +113,38 @@ def find_variables():
     variables_arr = []
     variables = re.findall(r'[^;{}]*[;=]', java_file)
     for i in variables:
-        if '=' in i:
+
+        if '=' not in i:
+            if '(' not in i:
+                if java_file[:java_file.find(i)].count('{') - java_file[:java_file.find(i)].count('}') == 1:
+                    if i.endswith('='):
+                        i = i[:-1] + ';'
+                    comments_v = re.findall(r'~comment\d+~', i)
+                    for j in comments_v:
+                        i = i.replace(j, '')
+                    comment = ''
+                    if len(comments_v) > 0:
+                        comment = comments[int(comments_v[-1][8:-1])]
+                    i = i.replace('<', '&lt;').replace('>', '&gt;')
+                    comment = comment.replace('<', '&lt;').replace('>', '&gt;')
+                    variables_arr.append([i.strip(), comment])
+        else:
+            if '(' not in i[:i.find('=')]:
+                if java_file[:java_file.find(i)].count('{') - java_file[:java_file.find(i)].count('}') == 1:
+                    index = java_file.find(i) + len(i) - 1
+                    while (java_file[index]) not in {';', '{'}:
+                        index += 1
+                        i += java_file[index]
+                    comments_v = re.findall(r'~comment\d+~', i)
+                    for j in comments_v:
+                        i = i.replace(j, '')
+                    comment = ''
+                    if len(comments_v) > 0:
+                        comment = comments[int(comments_v[-1][8:-1])]
+                    i = i.replace('<', '&lt;').replace('>', '&gt;')
+                    comment = comment.replace('<', '&lt;').replace('>', '&gt;')
+                    variables_arr.append([i.strip(), comment])
             i = i[:i.find('=')]
-        if '(' not in i:
-            if java_file[:java_file.find(i)].count('{') - java_file[:java_file.find(i)].count('}') == 1:
-                if i.endswith('='):
-                    i = i[:-1] + ';'
-                comments_v = re.findall(r'~comment\d+~', i)
-                for j in comments_v:
-                    i = i.replace(j, '')
-                comment = ''
-                if len(comments_v) > 0:
-                    comment = comments[int(comments_v[-1][8:-1])]
-                i = i.replace('<', '&lt;').replace('>', '&gt;')
-                comment = comment.replace('<', '&lt;').replace('>', '&gt;')
-                variables_arr.append([i.strip(), comment])
     return variables_arr
 
 
