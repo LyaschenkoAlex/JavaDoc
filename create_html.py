@@ -1,7 +1,9 @@
 import os
+
 from parse_java import *
 from parseDirectoryTree import *
 
+path = ''
 left_block = ''
 
 
@@ -29,9 +31,9 @@ def create_index(directory_dirs, directory_files):
         global left_block
 
         for file in files:
-            left_block += '<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('-', '/')[
+            left_block += '<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('&', '/')[
                                                                                               :-5] + '</a>'
-            f.write('<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('-', '/')[
+            f.write('<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('&', '/')[
                                                                                         :-5] + '</a>')
     f.write('''          
         </div>
@@ -39,7 +41,7 @@ def create_index(directory_dirs, directory_files):
         <h4>All classes</h4>''')
     for root, dirs, files in os.walk(directory_files):
         for file in files:
-            f.write('<a href="files/' + file + '" style="width:auto; font-size:12px"> ' + file.replace('-', '/')[
+            f.write('<a href="files/' + file + '" style="width:auto; font-size:12px"> ' + file.replace('&', '/')[
                                                                                           :-5] + '.java</a>')
     f.write('''
         </div>
@@ -49,12 +51,12 @@ def create_index(directory_dirs, directory_files):
     alphabet_dict = {}
     for root, dirs, files in os.walk(directory_files):
         for file in files:
-            alphabet_set.add(str(file.split('-')[-1][0]))
+            alphabet_set.add(str(file.split('&')[-1][0]))
 
             try:
-                alphabet_dict[str(file.split('-')[-1][0])] += ' ' + str(file.split('/')[-1])
+                alphabet_dict[str(file.split('&')[-1][0])] += ' ' + str(file.split('/')[-1])
             except:
-                alphabet_dict[str(file.split('-')[-1][0])] = '' + str(file.split('/')[-1])
+                alphabet_dict[str(file.split('&')[-1][0])] = '' + str(file.split('/')[-1])
     alphabet_set = sorted(alphabet_set)
     for key in alphabet_dict:
         f1 = open('res/alphabetical_index/' + key + '.html', "w")
@@ -75,7 +77,9 @@ def create_index(directory_dirs, directory_files):
         f1.write('<ul class="list-group">')
         for i in href_arr:
             f1.write(
-                '<li class="list-group-item"><a href="../files/' + i + '"class="btn btn-default">' + i.replace('-','/')[:-5] + '.java</a></li>')
+                '<li class="list-group-item"><a href="../files/' + i + '"class="btn btn-default">' + i.replace('&',
+                                                                                                               '/')[
+                                                                                                     :-5] + '.java</a></li>')
         f1.write('</ul>')
         f1.write('</body>')
         f1.close()
@@ -94,7 +98,7 @@ def create_index(directory_dirs, directory_files):
 
 def show_classes_in_package(directory_dirs):
     for root, dirs, files in os.walk(directory_dirs):
-        f = open('res/dirs/' + root.replace('\\', '-') + '.html', "w")
+        f = open('res/dirs/' + root.replace('\\', '&') + '.html', "w")
         f.write('''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,8 +117,21 @@ def show_classes_in_package(directory_dirs):
     <div" style="overflow: auto; margin: 10px;"> 
     ''')
         f.write('<a href="../index.html"> All packages</a></div>' + '<br><br><h4>Directory -> ' + root + '</h4><ul>')
+        for root_p, dirs_p, files_p in os.walk(root):
+            if len(dirs_p) > 0:
+                f.write('<p>Pholders in this directory -&gt;</p>')
+            for dir_p in dirs_p:
+                f.write('<a href=' + (root +'\\' + dir_p).replace('\\', '&') + '.html>'+root+'\\'+dir_p+'</a>'+'<br>')
+            f.write('<br>')
+            for file_p in files:
+                if file_p.endswith('.md'):
+                    f.write('<p>Readme -&gt; </p>')
+                    f.write('<a href=../files/' + (root +'\\' + file_p[:-3] + 'MD').replace('\\', '&') + '.html>'+root+'\\'+file_p+'</a>'+'<br>')
+            f.write('<br>')
+            break
         for file in files:
-            f.write('<li><a href="../files/' + root.replace('\\', '-') + '-' + file.replace('\\', '-')[
+            if file.endswith('.java'):
+                f.write('<li><a href="../files/' + root.replace('\\', '&') + '&' + file.replace('\\', '&')[
                                                                                :-5] + '.html">' + file + '</a></li>')
         f.write('''</ul>
     </div>
@@ -129,7 +146,7 @@ def write_files(directory_src):
     for root, dirs, files in os.walk(directory_src):
         for file in files:
             if file.endswith('.java'):
-                f = open('res/files/' + root.replace('\\', '-') + '-' + file[:-5] + '.html', 'w')
+                f = open('res/files/' + root.replace('\\', '&') + '&' + file[:-5] + '.html', 'w')
                 read_file(root + '\\' + file)
                 f.write('''<!DOCTYPE html>
 <html lang="en">
@@ -150,6 +167,13 @@ def write_files(directory_src):
                 f.write('&nbsp;<a href="#constructor">constructors</a>')
                 f.write('<br>')
                 f.write('<br>')
+                f.write('<div><h2>About this class</h2><br>')
+                s = about_java_file()
+                if s != '':
+                    f.write(s)
+                else:
+                    f.write('NONE')
+                f.write('</div>')
 
                 f.write('<table class="table table-striped">')
                 f.write('''<thead>
@@ -169,6 +193,7 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
+                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
                         f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
@@ -193,6 +218,7 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
+                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
                         f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
@@ -217,6 +243,9 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
+
+                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+
                         f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
@@ -240,6 +269,7 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
+                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
                         f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
@@ -263,6 +293,7 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
+                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
                         f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
@@ -310,6 +341,7 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
+                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
                         f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
@@ -333,6 +365,7 @@ def write_files(directory_src):
                     if i[-1] == '':
                         f.write('NONE')
                     else:
+                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
                         f.write(i[-1][4:-2].replace('*', '<br>'))
                     f.write('</td>')
                     f.write('</tr>')
@@ -344,7 +377,9 @@ def write_files(directory_src):
 
 
 if __name__ == '__main__':
+    path = 'src'
     create_directories_files()
     create_index('res/dirs', 'res/files')
     show_classes_in_package('src')
+
     write_files('src')

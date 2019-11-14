@@ -6,17 +6,23 @@ classname = ''
 constructor = []
 last_constructor = []
 imports = []
+about_file = ''
 
 
 def read_file(path_to_file):
     global comments
     global constructor
     global java_file
+    global about_file
     constructor = []
     try:
         java_file = open(path_to_file, 'r').read()
     except:
         java_file = ''
+    if java_file.startswith('/**'):
+        index = java_file.find('*/') + 2
+        about_file = java_file[:index].replace('\n', '<br>')
+        java_file = java_file[index:]
     ans = ''
     while java_file.count('/*\n') != 0:
         index = java_file.find('/*\n')
@@ -33,7 +39,7 @@ def read_file(path_to_file):
         if java_file[i] == '}' and java_file[:i].count('/**') == java_file[:i].count('*/'):
             left += 1
         if right - left < 2:
-            new_java+=java_file[i]
+            new_java += java_file[i]
         if java_file[i] == '{' and java_file[:i].count('/**') == java_file[:i].count('*/'):
             right += 1
     java_file = new_java
@@ -45,10 +51,11 @@ def read_file(path_to_file):
         while not s.endswith('*/'):
             s += java_file[index]
             index += 1
+        s = s.replace('\n', '<br>')
         comments.append(s)
         java_file = java_file.replace(s, '~comment' + str(len(comments) - 1) + '~')
 
-    c=False
+    c = False
     new_java_file = ''
     left = 0
     right = 0
@@ -74,7 +81,7 @@ def find_class_interface_enum(class_interface):
 
     class_arrays = []
 
-    classes = re.findall(r'[^;{}]+ '+ class_interface + ' [^{]+', java_file)
+    classes = re.findall(r'[^;{}]+ ' + class_interface + ' [^{]+', java_file)
     for i in classes:
         if ';' not in i:
 
@@ -85,21 +92,6 @@ def find_class_interface_enum(class_interface):
                 classname = i
                 comment = ''
                 i = i + '{'
-                # k = i.find('{')
-                # p = i.find('<')
-                # if p!= -1 and p < k:
-                #     k = p
-                # k -= 1
-                # if i[k] != ' ':
-                #     while i[k] != ' ':
-                #         classname += i[k]
-                #         k -= 1
-                # else:
-                #     while i[k] == ' ':
-                #         k -= 1
-                #     while i[k] != ' ':
-                #         classname += i[k]
-                #         k -= 1
                 i = i[:-1]
                 if len(comments_c) > 0:
                     comment = comments[int(comments_c[-1][8:-1])]
@@ -183,7 +175,6 @@ def find_methods():
                     global constructor
                     constructor.append([i.strip(), comment])
 
-
     return methods_arr
 
 
@@ -232,9 +223,18 @@ def find_variables_enum():
     return variables_arr
 
 
+def about_java_file():
+    global about_file
+    s = about_file
+    about_file = ''
+    return s
+
+
 if __name__ == '__main__':
-    read_file("src/main/java/com/pubnub/api/endpoints/presence/Leave.java")
+    read_file("src/StdAudio.java")
     print(find_class_interface_enum('class'))
+    print(about_java_file())
+    print(len(about_file))
     print(find_class_interface_enum('interface'))
     print(find_class_interface_enum('enum'))
     print(find_variables_enum())
