@@ -2,9 +2,15 @@
 Final version of JavaDoc
 <br>
 <br>
-Create src folder in directory with .py files. Paste your source code or .java file into src folder,
-then run create_html.py without any parameters
+There are 2 keys, 'class' and 'project'
 <br>
-Program will create res folder. In this folder you should open index.html
+run create_html.py with path to .java file and 'class' parameter, the programm will create classname.html file with documentation
 <br>
+run create_html.py with path to package and 'project' parameter, the programm will create 'res' folder in your project, there will be index.html file, run it.
 There will be all information about your code. 
+<br>
+example:
+<br>
+python create_html.py C:\Users\lyasc\IdeaProjects\JavaDoc\src\StdAudio.java class
+<br>
+C:\Users\lyasc\IdeaProjects\JavaDoc\src project
