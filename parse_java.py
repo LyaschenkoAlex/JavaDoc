@@ -93,9 +93,10 @@ def find_class_interface_enum(class_interface):
                 comment = ''
                 i = i + '{'
                 i = i[:-1]
+                i = i.replace('<', '&lt;').replace('>', '&gt;')
+
                 if len(comments_c) > 0:
                     comment = comments[int(comments_c[-1][8:-1])]
-                    i = i.replace('<', '&lt;').replace('>', '&gt;')
                     comment = comment.replace('<', '&lt;').replace('>', '&gt;')
                 class_arrays.append([i.strip(), comment])
     return class_arrays
@@ -169,6 +170,19 @@ def find_methods():
                         index -= 1
                 i = i.replace('<', '&lt;').replace('>', '&gt;')
                 comment = comment.replace('<', '&lt;').replace('>', '&gt;')
+                left = 0
+                right = 0
+                max = 0
+                if i.count('(') > 1:
+                    for j in i:
+                        if j == '(':
+                            left += 1
+                        elif j == ')':
+                            right += 1
+                        if left - right > max:
+                            max = left - right
+                    if max == 1:
+                        continue
                 if method_name[::-1] not in classname:
                     methods_arr.append([i.strip(), comment])
                 else:
@@ -230,15 +244,15 @@ def about_java_file():
     return s
 
 
-# if __name__ == '__main__':
-#     read_file("src/StdAudio.java")
-#     print(find_class_interface_enum('class'))
-#     print(about_java_file())
-#     print(len(about_file))
-#     print(find_class_interface_enum('interface'))
-#     print(find_class_interface_enum('enum'))
-#     print(find_variables_enum())
-#     print(find_variables())
-#     print(find_imports())
-#     print(find_methods())
-#     print(find_constructors())
+if __name__ == '__main__':
+    read_file("C:\\Users\\lyasc\\IdeaProjects\\JavaDoc\\src\\main\\java\\com\\pubnub\\api\\models\\consumer\\access_manager\\v3\\Channel.java")
+    print(find_class_interface_enum('class'))
+    print(about_java_file())
+    print(len(about_file))
+    print(find_class_interface_enum('interface'))
+    print(find_class_interface_enum('enum'))
+    print(find_variables_enum())
+    print(find_variables())
+    print(find_imports())
+    print(find_methods())
+    print(find_constructors())
