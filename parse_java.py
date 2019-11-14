@@ -230,15 +230,15 @@ def about_java_file():
     return s
 
 
-if __name__ == '__main__':
-    read_file("src/StdAudio.java")
-    print(find_class_interface_enum('class'))
-    print(about_java_file())
-    print(len(about_file))
-    print(find_class_interface_enum('interface'))
-    print(find_class_interface_enum('enum'))
-    print(find_variables_enum())
-    print(find_variables())
-    print(find_imports())
-    print(find_methods())
-    print(find_constructors())
+# if __name__ == '__main__':
+#     read_file("src/StdAudio.java")
+#     print(find_class_interface_enum('class'))
+#     print(about_java_file())
+#     print(len(about_file))
+#     print(find_class_interface_enum('interface'))
+#     print(find_class_interface_enum('enum'))
+#     print(find_variables_enum())
+#     print(find_variables())
+#     print(find_imports())
+#     print(find_methods())
+#     print(find_constructors())
