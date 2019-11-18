@@ -8,7 +8,11 @@ left_block = ''
 
 
 def create_index(directory_dirs, directory_files, directory_path):
+<<<<<<< HEAD
     f = open(directory_path + '/res/index' + '.html', "w")
+=======
+    f = open(directory_path + '/res\\index' + '.html', "w")
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     f.write('''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,6 +131,7 @@ def show_classes_in_package(directory_dirs):
                     f.write('<p>Pholders in this directory -&gt;</p>')
                 for dir_p in dirs_p:
                     if root_p[len(directory_dirs):].replace('/', '&') != '&':
+<<<<<<< HEAD
                         s = directory_dirs.split('/')[-1] + root_p[len(directory_dirs):].replace(
                             '/', '&') + '&' + dir_p + '.html">'
                         f.write(
@@ -134,6 +139,13 @@ def show_classes_in_package(directory_dirs):
                                 '/', '&') + '&' + dir_p + '.html">' + root_p + '/' + dir_p + '</a>' + '<br>')
                     else:
                         f.write('<a href="../dirs/' + directory_dirs.split('/')[
+=======
+                        f.write(
+                            '<a href="../dirs/' + directory_dirs.split('\\')[-1] + root_p[len(directory_dirs):].replace(
+                                '/', '&') + '&' + dir_p + '.html">' + root_p + '/' + dir_p + '</a>' + '<br>')
+                    else:
+                        f.write('<a href="../dirs/' + directory_dirs.split('\\')[
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
                             -1] + '&' + dir_p + '.html">' + root_p + dir_p + '</a>' + '<br>')
 
                 f.write('<br>')
@@ -144,12 +156,20 @@ def show_classes_in_package(directory_dirs):
                         f.write('<p>Readme -&gt; </p>')
                         if root_p[len(directory_dirs):][1:] != '':
                             f.write('<a href="../files/' + (
+<<<<<<< HEAD
                                     directory_dirs.split('/')[-1] + '/' + root_p[len(directory_dirs):][
+=======
+                                    directory_dirs.split('\\')[-1] + '/' + root_p[len(directory_dirs):][
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
                                                                            1:] + '/' + file_p[:-3]).replace('/',
                                                                                                             '&') + 'MD' + '.html">' + root_p + '/' + file_p + '</a>' + '<br>')
                         else:
                             f.write('<a href="../files/' + (
+<<<<<<< HEAD
                                     directory_dirs.split('/')[-1] + '/' + root_p[len(directory_dirs):][
+=======
+                                    directory_dirs.split('\\')[-1] + '/' + root_p[len(directory_dirs):][
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
                                                                            1:] + file_p[:-3]).replace('/',
                                                                                                       '&') + 'MD' + '.html">' + root_p + file_p + '</a>' + '<br>')
 
@@ -158,6 +178,7 @@ def show_classes_in_package(directory_dirs):
                 for file_p in files_p:
                     if file_p.endswith('.java'):
                         if root_p[len(directory_dirs):].replace('/', '&') != '&':
+<<<<<<< HEAD
                             f.write('<li><a href="../files/' + directory_dirs.split('/')[-1] + root_p[len(
                                 directory_dirs):].replace('/', '&') + '&' + file_p[:-5] + '.html">' +
                                     directory_dirs.split('/')[-1] + root_p[
@@ -166,6 +187,16 @@ def show_classes_in_package(directory_dirs):
                             f.write('<li><a href="../files/' + directory_dirs.split('/')[-1] + root_p[len(
                                 directory_dirs):].replace('/', '&') + file_p[:-5] + '.html">' +
                                     directory_dirs.split('/')[-1] + root_p[
+=======
+                            f.write('<li><a href="../files/' + directory_dirs.split('\\')[-1] + root_p[len(
+                                directory_dirs):].replace('/', '&') + '&' + file_p[:-5] + '.html">' +
+                                    directory_dirs.split('\\')[-1] + root_p[
+                                                                     len(directory_dirs):] + '/' + file_p + '</a></li>')
+                        else:
+                            f.write('<li><a href="../files/' + directory_dirs.split('\\')[-1] + root_p[len(
+                                directory_dirs):].replace('/', '&') + file_p[:-5] + '.html">' +
+                                    directory_dirs.split('\\')[-1] + root_p[
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
                                                                      len(directory_dirs):] + file_p + '</a></li>')
 
                 break
@@ -182,8 +213,16 @@ def write_files(directory_src):
     for root, dirs, files in os.walk(directory_src):
         for file in files:
             if file.endswith('.java'):
+<<<<<<< HEAD
                 s = directory_src + '/res/files/' + directory_src.split('/')[-1] + '&' + root[len(directory_src):].replace('/', '&')[1:] + '&' + file[:-5] + '.html'
                 f = open(s, 'w')
+=======
+                s = directory_src + '/res/files/' + root[len(directory_src):].replace('\\', '&') + \
+                    directory_src.split('\\')[-1] + '&' + file[:-5] + '.html'
+                f = open(
+                    directory_src + '/res/files/' + directory_src.split('\\')[-1] + root[len(directory_src):].replace(
+                        '\\', '&') + '&' + file[:-5] + '.html', 'w')
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
                 read_file(root + '/' + file)
                 f.write('''<!DOCTYPE html>
 <html lang="en">
@@ -447,7 +486,11 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Class</th>
+<<<<<<< HEAD
       <th scope="col">Documentation</th>
+=======
+      <th scope="col">Comments</th>
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -472,7 +515,11 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">enum</th>
+<<<<<<< HEAD
       <th scope="col">Documentation</th>
+=======
+      <th scope="col">Comments</th>
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -497,7 +544,11 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Interface</th>
+<<<<<<< HEAD
       <th scope="col">Documentation</th>
+=======
+      <th scope="col">Comments</th>
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -523,7 +574,11 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
         <tr>
           <th scope="col">Imports</th>
+<<<<<<< HEAD
           <th scope="col">Documentation</th>
+=======
+          <th scope="col">Comments</th>
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
         </tr>
       </thead>''')
     f.write('<tbody>')
@@ -548,7 +603,11 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Variable</th>
+<<<<<<< HEAD
       <th scope="col">Documentation</th>
+=======
+      <th scope="col">Comments</th>
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -574,7 +633,11 @@ def create_java_doc_for_one_class(classpath):
         f.write('''<thead>
         <tr>
           <th scope="col">Variable enum</th>
+<<<<<<< HEAD
           <th scope="col">Documentation</th>
+=======
+          <th scope="col">Comments</th>
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
         </tr>
       </thead>''')
         f.write('<tbody>')
@@ -596,7 +659,11 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Method</th>
+<<<<<<< HEAD
       <th scope="col">Documentation</th>
+=======
+      <th scope="col">Comments</th>
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -620,7 +687,11 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Constructor</th>
+<<<<<<< HEAD
       <th scope="col">Documentation</th>
+=======
+      <th scope="col">Comments</th>
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -653,7 +724,10 @@ if __name__ == '__main__':
     except:
         print('Error, wrong key')
         exit(-1)
+<<<<<<< HEAD
     # directory_path = directory_path.replace('/', '\\')
+=======
+>>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     if key == 'project':
         create_directories_files(directory_path)
         create_index(directory_path + '/res/dirs', directory_path + '/res/files', directory_path)
