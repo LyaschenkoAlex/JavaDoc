@@ -24,8 +24,8 @@ def read_file(path_to_file):
         about_file = java_file[:index].replace('\n', '<br>')
         java_file = java_file[index:]
     ans = ''
-    while java_file.count('/*\n') != 0:
-        index = java_file.find('/*\n')
+    while java_file.count('/*') != 0:
+        index = java_file.find('/*')
         ans = ''
         while not ans.endswith('*/'):
             ans += java_file[index]
@@ -35,7 +35,7 @@ def read_file(path_to_file):
     right = 0
     left = 0
     for i in range(len(java_file)):
-
+        k = java_file[i]
         if java_file[i] == '}' and java_file[:i].count('/**') == java_file[:i].count('*/'):
             left += 1
         if right - left < 2:

@@ -8,7 +8,7 @@ left_block = ''
 
 
 def create_index(directory_dirs, directory_files, directory_path):
-    f = open(directory_path + '/res\\index' + '.html', "w")
+    f = open(directory_path + '/res/index' + '.html', "w")
     f.write('''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -130,42 +130,46 @@ def show_classes_in_package(directory_dirs):
                 for dir_p in dirs_p:
                     if root_p[len(directory_dirs):].replace('/', '&') != '&':
                         f.write(
-                            '<a href="../dirs/' + directory_dirs.split('\\')[-1] + root_p[len(directory_dirs):].replace(
+                            '<a href="../dirs/' + directory_dirs.split('/')[-1] + root_p[len(directory_dirs):].replace(
                                 '/', '&') + '&' + dir_p + '.html">' + root_p + '/' + dir_p + '</a>' + '<br>')
                     else:
-                        f.write('<a href="../dirs/' + directory_dirs.split('\\')[
+                        f.write('<a href="../dirs/' + directory_dirs.split('/')[
                             -1] + '&' + dir_p + '.html">' + root_p + dir_p + '</a>' + '<br>')
 
                 f.write('<br>')
                 #############################################3
                 for file_p in files_p:
                     if file_p.endswith('.md'):
-
                         f.write('<p>Readme -&gt; </p>')
                         if root_p[len(directory_dirs):][1:] != '':
                             f.write('<a href="../files/' + (
-                                    directory_dirs.split('\\')[-1] + '/' + root_p[len(directory_dirs):][
+                                    directory_dirs.split('/')[-1] + '/' + root_p[len(directory_dirs):][
                                                                            1:] + '/' + file_p[:-3]).replace('/',
                                                                                                             '&') + 'MD' + '.html">' + root_p + '/' + file_p + '</a>' + '<br>')
                         else:
                             f.write('<a href="../files/' + (
-                                    directory_dirs.split('\\')[-1] + '/' + root_p[len(directory_dirs):][
+                                    directory_dirs.split('/')[-1] + '/' + root_p[len(directory_dirs):][
                                                                            1:] + file_p[:-3]).replace('/',
                                                                                                       '&') + 'MD' + '.html">' + root_p + file_p + '</a>' + '<br>')
 
                 f.write('<br>')
                 f.write('<ul>')
                 for file_p in files_p:
+
+                    s = '<li><a href="../files/' + directory_dirs.split('/')[-1] + root_p[len(
+                        directory_dirs):].replace('/', '&') + '&' + file_p[:-5] + '.html">'
+                    s = s.replace('//', '/')
+                    s = s.replace('//', '/')
+
                     if file_p.endswith('.java'):
                         if root_p[len(directory_dirs):].replace('/', '&') != '&':
-                            f.write('<li><a href="../files/' + directory_dirs.split('\\')[-1] + root_p[len(
-                                directory_dirs):].replace('/', '&') + '&' + file_p[:-5] + '.html">' +
-                                    directory_dirs.split('\\')[-1] + root_p[
+                            f.write(s +
+                                    directory_dirs.split('/')[-1] + root_p[
                                                                      len(directory_dirs):] + '/' + file_p + '</a></li>')
                         else:
-                            f.write('<li><a href="../files/' + directory_dirs.split('\\')[-1] + root_p[len(
+                            f.write('<li><a href="../files/' + directory_dirs.split('/')[-1] + root_p[len(
                                 directory_dirs):].replace('/', '&') + file_p[:-5] + '.html">' +
-                                    directory_dirs.split('\\')[-1] + root_p[
+                                    directory_dirs.split('/')[-1] + root_p[
                                                                      len(directory_dirs):] + file_p + '</a></li>')
 
                 break
@@ -182,11 +186,11 @@ def write_files(directory_src):
     for root, dirs, files in os.walk(directory_src):
         for file in files:
             if file.endswith('.java'):
-                s = directory_src + '/res/files/' + root[len(directory_src):].replace('\\', '&') + \
-                    directory_src.split('\\')[-1] + '&' + file[:-5] + '.html'
+                s = directory_src + '/res/files/' + root[len(directory_src):].replace('/', '&') + \
+                    directory_src.split('/')[-1] + '&' + file[:-5] + '.html'
                 f = open(
-                    directory_src + '/res/files/' + directory_src.split('\\')[-1] + root[len(directory_src):].replace(
-                        '\\', '&') + '&' + file[:-5] + '.html', 'w')
+                    directory_src + '/res/files/' + directory_src.split('/')[-1] + root[len(directory_src):].replace(
+                        '/', '&') + '&' + file[:-5] + '.html', 'w')
                 read_file(root + '/' + file)
                 f.write('''<!DOCTYPE html>
 <html lang="en">
@@ -217,9 +221,33 @@ def write_files(directory_src):
 
                 f.write('<table class="table table-striped">')
                 f.write('''<thead>
+        <tr>
+          <th scope="col">Imports</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+                f.write('<tbody>')
+                for i in find_imports():
+                    s = ' '.join(i[:-1])
+                    f.write('<tr>')
+                    f.write('<td>')
+                    f.write(s)
+                    f.write('</td>')
+                    f.write('<td>')
+                    if i[-1] == '':
+                        f.write('NONE')
+                    else:
+                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                        f.write(i[-1][4:-2].replace('*', '<br>'))
+                    f.write('</td>')
+                    f.write('</tr>')
+                f.write('</tbody></table>')
+
+                f.write('<table class="table table-striped">')
+                f.write('''<thead>
     <tr>
       <th scope="col">Class</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
                 f.write('<tbody>')
@@ -244,7 +272,7 @@ def write_files(directory_src):
                 f.write('''<thead>
     <tr>
       <th scope="col">enum</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
                 f.write('<tbody>')
@@ -269,7 +297,7 @@ def write_files(directory_src):
                 f.write('''<thead>
     <tr>
       <th scope="col">Interface</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
                 f.write('<tbody>')
@@ -291,36 +319,14 @@ def write_files(directory_src):
                     f.write('</tr>')
                 f.write('</tbody></table>')
                 f.write('<br>')
-                f.write('<table class="table table-striped">')
-                f.write('''<thead>
-        <tr>
-          <th scope="col">Imports</th>
-          <th scope="col">Comments</th>
-        </tr>
-      </thead>''')
-                f.write('<tbody>')
-                for i in find_imports():
-                    s = ' '.join(i[:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
-                    f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
-                f.write('</tbody></table>')
+
                 f.write('<br>')
 
                 f.write('<table class="table table-striped"><a name="variable"></a>')
                 f.write('''<thead>
     <tr>
       <th scope="col">Variable</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
                 f.write('<tbody>')
@@ -346,7 +352,7 @@ def write_files(directory_src):
                     f.write('''<thead>
         <tr>
           <th scope="col">Variable enum</th>
-          <th scope="col">Comments</th>
+          <th scope="col">Documentation</th>
         </tr>
       </thead>''')
                     f.write('<tbody>')
@@ -368,7 +374,7 @@ def write_files(directory_src):
                 f.write('''<thead>
     <tr>
       <th scope="col">Method</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
                 f.write('<tbody>')
@@ -392,7 +398,7 @@ def write_files(directory_src):
                 f.write('''<thead>
     <tr>
       <th scope="col">Constructor</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
                 f.write('<tbody>')
@@ -438,7 +444,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('&nbsp;<a href="#constructor">constructors</a>')
     f.write('<br>')
     f.write('<br>')
-    f.write('<div><h2>About this class</h2><br>')
+    f.write('<div><h2>About this class</h2>')
     s = about_java_file()
     if s != '':
         f.write(s)
@@ -450,7 +456,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Class</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -475,7 +481,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">enum</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -500,7 +506,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Interface</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -526,7 +532,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
         <tr>
           <th scope="col">Imports</th>
-          <th scope="col">Comments</th>
+          <th scope="col">Documentation</th>
         </tr>
       </thead>''')
     f.write('<tbody>')
@@ -551,7 +557,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Variable</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -577,7 +583,7 @@ def create_java_doc_for_one_class(classpath):
         f.write('''<thead>
         <tr>
           <th scope="col">Variable enum</th>
-          <th scope="col">Comments</th>
+          <th scope="col">Documentation</th>
         </tr>
       </thead>''')
         f.write('<tbody>')
@@ -599,7 +605,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Method</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -623,7 +629,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Constructor</th>
-      <th scope="col">Comments</th>
+      <th scope="col">Documentation</th>
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -656,10 +662,10 @@ if __name__ == '__main__':
     except:
         print('Error, wrong key')
         exit(-1)
-    if key == 'project':
+    if key == '-p':
         create_directories_files(directory_path)
         create_index(directory_path + '/res/dirs', directory_path + '/res/files', directory_path)
         show_classes_in_package(directory_path)
         write_files(directory_path)
-    elif key == 'class':
+    elif key == '-c':
         create_java_doc_for_one_class(directory_path)
