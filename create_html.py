@@ -78,10 +78,11 @@ def create_index(directory_dirs, directory_files, directory_path):
         href_arr = alphabet_dict[key].split(' ')
         f1.write('<ul class="list-group">')
         for i in href_arr:
+            print(i)
             f1.write(
                 '<li class="list-group-item"><a href="../files/' + i + '"class="btn btn-default">' + i.replace('&',
                                                                                                                '/')[
-                                                                                                     :-5] + '.java</a></li>')
+                                                                                                     :-5] + '</a></li>')
         f1.write('</ul>')
         f1.write('</body>')
         f1.close()
@@ -126,7 +127,7 @@ def show_classes_in_package(directory_dirs):
             t = directory_dirs + '/'.join(f_d.split('&')[1:])[:-5]
             for root_p, dirs_p, files_p in os.walk(directory_dirs + '/' + '/'.join(f_d.split('&')[1:])[:-5]):
                 if len(dirs_p) > 0:
-                    f.write('<p>Pholders in this directory -&gt;</p>')
+                    f.write('<p>Folders in this directory -&gt;</p>')
                 for dir_p in dirs_p:
                     if root_p[len(directory_dirs):].replace('/', '&') != '&':
                         f.write(
@@ -210,115 +211,131 @@ def write_files(directory_src):
                 f.write('&nbsp;<a href="#method">methods</a>')
                 f.write('&nbsp;<a href="#constructor">constructors</a>')
                 f.write('<br>')
-                f.write('<br>')
-                f.write('<div><h2>About this class</h2><br>')
-                s = about_java_file()
-                if s != '':
-                    f.write(s)
-                else:
-                    f.write('NONE')
-                f.write('</div>')
-
                 f.write('<table class="table table-striped">')
-                f.write('''<thead>
+                if len(find_package()) != 0:
+                    f.write('''<thead>
+                <tr>
+                  <th scope="col">Package</th>
+                </tr>
+              </thead>''')
+                    f.write('<tr><td>')
+                    f.write(find_package()[0])
+                    f.write('</tr></td>')
+                    f.write('</tbody></table>')
+
+
+                if about_java_file() != '':
+                    f.write('<br>')
+                    f.write('<div><h2>About this class</h2><br>')
+                    f.write('<tbody>')
+                    s = about_java_file()
+                    if s != '':
+                        f.write(s)
+                    else:
+                        f.write('NONE')
+                    f.write('</div>')
+                if len(find_imports()) != 0:
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
+            <tr>
+              <th scope="col">Imports</th>
+              <th scope="col">Documentation</th>
+            </tr>
+          </thead>''')
+                    f.write('<tbody>')
+                    for i in find_imports():
+                        s = ' '.join(i[:-1])
+                        f.write('<tr>')
+                        f.write('<td>')
+                        f.write(s)
+                        f.write('</td>')
+                        f.write('<td>')
+
+                        if i[-1] == '':
+                            f.write('NONE')
+                        else:
+                            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
+                        f.write('</td>')
+                        f.write('</tr>')
+                    f.write('</tbody></table>')
+                if len(find_class_interface_enum('class')) != 0:
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
         <tr>
-          <th scope="col">Imports</th>
+          <th scope="col">Class</th>
           <th scope="col">Documentation</th>
         </tr>
       </thead>''')
-                f.write('<tbody>')
-                for i in find_imports():
-                    s = ' '.join(i[:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
-                    f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
-                f.write('</tbody></table>')
-
-                f.write('<table class="table table-striped">')
-                f.write('''<thead>
-    <tr>
-      <th scope="col">Class</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-                f.write('<tbody>')
-                for i in find_class_interface_enum('class'):
-                    s = ' '.join(i[0:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
-                    f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
-                f.write('</tbody></table>')
-                f.write('<br>')
-
-                f.write('<table class="table table-striped">')
-                f.write('''<thead>
-    <tr>
-      <th scope="col">enum</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-                f.write('<tbody>')
-                for i in find_class_interface_enum('enum'):
-                    s = ' '.join(i[:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
-                    f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
+                    f.write('<tbody>')
+                    for i in find_class_interface_enum('class'):
+                        s = ' '.join(i[0:-1])
+                        f.write('<tr>')
+                        f.write('<td>')
+                        f.write(s)
+                        f.write('</td>')
+                        f.write('<td>')
+                        if i[-1] == '':
+                            f.write('NONE')
+                        else:
+                            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
+                        f.write('</td>')
+                        f.write('</tr>')
                     f.write('</tbody></table>')
                     f.write('<br>')
+                if len(find_class_interface_enum('enum')) > 0:
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
+        <tr>
+          <th scope="col">Enum</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+                    f.write('<tbody>')
+                    for i in find_class_interface_enum('enum'):
+                        s = ' '.join(i[:-1])
+                        f.write('<tr>')
+                        f.write('<td>')
+                        f.write(s)
+                        f.write('</td>')
+                        f.write('<td>')
+                        if i[-1] == '':
+                            f.write('NONE')
+                        else:
+                            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
+                        f.write('</td>')
+                        f.write('</tr>')
+                        f.write('</tbody></table>')
+                        f.write('<br>')
+                if len(find_class_interface_enum('interface')) != 0:
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
+        <tr>
+          <th scope="col">Interface</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+                    f.write('<tbody>')
+                    for i in find_class_interface_enum('interface'):
+                        s = ' '.join(i[:-1])
+                        f.write('<tr>')
+                        f.write('<td>')
+                        f.write(s)
+                        f.write('</td>')
+                        f.write('<td>')
+                        if i[-1] == '':
+                            f.write('NONE')
+                        else:
 
-                f.write('<table class="table table-striped">')
-                f.write('''<thead>
-    <tr>
-      <th scope="col">Interface</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-                f.write('<tbody>')
-                for i in find_class_interface_enum('interface'):
-                    s = ' '.join(i[:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
-                    f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
+                            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
 
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
-                f.write('</tbody></table>')
-                f.write('<br>')
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
+                        f.write('</td>')
+                        f.write('</tr>')
+                    f.write('</tbody></table>')
+                    f.write('<br>')
 
                 f.write('<br>')
 
@@ -443,14 +460,15 @@ def create_java_doc_for_one_class(classpath):
     f.write('&nbsp;<a href="#method">methods</a>')
     f.write('&nbsp;<a href="#constructor">constructors</a>')
     f.write('<br>')
-    f.write('<br>')
-    f.write('<div><h2>About this class</h2>')
-    s = about_java_file()
-    if s != '':
-        f.write(s)
-    else:
-        f.write('NONE')
-    f.write('</div>')
+    if about_java_file() != '':
+        f.write('<br>')
+        f.write('<div><h2>About this class</h2>')
+        s = about_java_file()
+        if s != '':
+            f.write(s)
+        else:
+            f.write('NONE')
+        f.write('</div>')
 
     f.write('<table class="table table-striped">')
     f.write('''<thead>
@@ -476,108 +494,111 @@ def create_java_doc_for_one_class(classpath):
         f.write('</tr>')
     f.write('</tbody></table>')
     f.write('<br>')
-
-    f.write('<table class="table table-striped">')
-    f.write('''<thead>
-    <tr>
-      <th scope="col">enum</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-    f.write('<tbody>')
-    for i in find_class_interface_enum('enum'):
-        s = ' '.join(i[:-1])
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(s)
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
-        f.write('</tbody></table>')
-        f.write('<br>')
-
-    f.write('<table class="table table-striped">')
-    f.write('''<thead>
-    <tr>
-      <th scope="col">Interface</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-    f.write('<tbody>')
-    for i in find_class_interface_enum('interface'):
-        s = ' '.join(i[:-1])
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(s)
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
-
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
-    f.write('</tbody></table>')
-    f.write('<br>')
-    f.write('<table class="table table-striped">')
-    f.write('''<thead>
+    if len(find_class_interface_enum('enum')) != 0:
+        print(find_class_interface_enum('enum'))
+        f.write('<table class="table table-striped">')
+        f.write('''<thead>
         <tr>
-          <th scope="col">Imports</th>
+          <th scope="col">Enum</th>
           <th scope="col">Documentation</th>
         </tr>
       </thead>''')
-    f.write('<tbody>')
-    for i in find_imports():
-        s = ' '.join(i[:-1])
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(s)
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
-    f.write('</tbody></table>')
-    f.write('<br>')
+        f.write('<tbody>')
+        for i in find_class_interface_enum('enum'):
+            s = ' '.join(i[:-1])
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(s)
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
+            f.write('</tbody></table>')
+            f.write('<br>')
 
-    f.write('<table class="table table-striped"><a name="variable"></a>')
-    f.write('''<thead>
-    <tr>
-      <th scope="col">Variable</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-    f.write('<tbody>')
-    for i in find_variables():
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(i[0])
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
-    f.write('</tbody></table>')
+    if len(find_class_interface_enum('interface')) != 0:
+        f.write('<table class="table table-striped">')
+        f.write('''<thead>
+        <tr>
+          <th scope="col">Interface</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+        f.write('<tbody>')
+        for i in find_class_interface_enum('interface'):
+            s = ' '.join(i[:-1])
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(s)
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
 
-    # f.write('VARIABLES - ' + str(find_variables()))
-    f.write('<br>')
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
+        f.write('</tbody></table>')
+        f.write('<br>')
+    if len(find_imports()) != 0:
+        f.write('<table class="table table-striped">')
+        f.write('''<thead>
+            <tr>
+              <th scope="col">Imports</th>
+              <th scope="col">Documentation</th>
+            </tr>
+          </thead>''')
+        f.write('<tbody>')
+        for i in find_imports():
+            s = ' '.join(i[:-1])
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(s)
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
+        f.write('</tbody></table>')
+        f.write('<br>')
+    if len(find_variables()) != 0:
+        f.write('<table class="table table-striped"><a name="variable"></a>')
+        f.write('''<thead>
+        <tr>
+          <th scope="col">Variable</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+        f.write('<tbody>')
+        for i in find_variables():
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(i[0])
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
+        f.write('</tbody></table>')
+
+        # f.write('VARIABLES - ' + str(find_variables()))
+        f.write('<br>')
     if find_variables_enum():
         f.write('<table class="table table-striped">')
         f.write('''<thead>

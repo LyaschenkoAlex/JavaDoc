@@ -98,6 +98,15 @@ def find_class_interface_enum(class_interface):
                 if len(comments_c) > 0:
                     comment = comments[int(comments_c[-1][8:-1])]
                     comment = comment.replace('<', '&lt;').replace('>', '&gt;')
+                arr_imports = find_imports()
+                i = i.strip()
+                i = i + ' '
+                for p in arr_imports:
+                    import_java = p[0].split('.')[-1]
+                    in_class = re.findall(r'[^\w]' + import_java + '[^\w]', i)
+                    if len(in_class) != 0:
+                        i = '<em>used ' + p[0] + '</em><br>' + i
+
                 class_arrays.append([i.strip(), comment])
     return class_arrays
 
@@ -120,6 +129,14 @@ def find_variables():
                         comment = comments[int(comments_v[-1][8:-1])]
                     i = i.replace('<', '&lt;').replace('>', '&gt;')
                     comment = comment.replace('<', '&lt;').replace('>', '&gt;')
+                    i = i.strip()
+                    i = i + ' '
+                    for p in find_imports():
+                        import_java = p[0].split('.')[-1]
+                        in_class = re.findall(r'[^\w]' + import_java + '[^\w]', i)
+                        if len(in_class) != 0:
+                            i = '<em>used ' + p[0] + '</em><br>' + i
+
                     variables_arr.append([i.strip(), comment])
         else:
             if '(' not in i[:i.find('=')]:
@@ -136,6 +153,15 @@ def find_variables():
                         comment = comments[int(comments_v[-1][8:-1])]
                     i = i.replace('<', '&lt;').replace('>', '&gt;')
                     comment = comment.replace('<', '&lt;').replace('>', '&gt;')
+                    i = i.strip()
+                    i = i + ' '
+                    for p in find_imports():
+                        import_java = p[0].split('.')[-1]
+                        in_class = re.findall(r'[^\w]' + import_java + '[^\w]', i)
+                        if len(in_class) != 0:
+                            i = '<em>used ' + p[0] + '</em><br>' + i
+
+
                     variables_arr.append([i.strip(), comment])
             i = i[:i.find('=')]
     return variables_arr
@@ -183,6 +209,15 @@ def find_methods():
                             max = left - right
                     if max == 1:
                         continue
+              ################################################
+                i = i.strip()
+                i = i + ' '
+                for p in find_imports():
+                    import_java = p[0].split('.')[-1]
+                    in_class = re.findall(r'[^\w]' + import_java + '[^\w]', i)
+                    if len(in_class) != 0:
+                        i = '<em>used ' + p[0] + '</em><br>' + i
+
                 if method_name[::-1] not in classname:
                     methods_arr.append([i.strip(), comment])
                 else:
@@ -191,6 +226,9 @@ def find_methods():
 
     return methods_arr
 
+def find_package():
+    a = re.findall(r'[^\w]*package[^;]+', java_file)
+    return a
 
 def find_constructors():
     global java_file
