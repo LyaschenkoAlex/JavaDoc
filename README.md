@@ -6,15 +6,15 @@ Final version of JavaDoc
 There are 2 keys, '-c' and '-p'
 <br>
 <br>
-run create_html.py with path to .java file and '-c' parameter, the programm will create 'classname'.html file with documentation
+run create_html.py with FULL path to .java file and '-c' parameter, the programm will create 'classname'.html file with documentation
 <br>
 Example:
 python create_html.py /home/alex/IdeaProjects/java/Class.java -c
 <br>
-Path to .html file from example will be: /home/alex/IdeaProjects/java/Class.html
+Full path to .html file from example will be: /home/alex/IdeaProjects/java/Class.html
 <br>
 <br>
-run create_html.py with path to package and '-p' parameter, the programm will create 'res' folder in your project, there will be index.html file, run it.
+run create_html.py with FULL path to package and '-p' parameter, the programm will create 'res' folder in your project, there will be index.html file, run it.
 There will be all information about your code. 
 <br>
 Example:
