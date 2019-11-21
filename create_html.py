@@ -2,6 +2,7 @@ import os
 from sys import argv
 from parse_java import *
 from parseDirectoryTree import *
+from datetime import datetime
 
 path = ''
 left_block = ''
@@ -24,6 +25,9 @@ def create_index(directory_dirs, directory_files, directory_path, path_to_res):
 
 <div class="container-fluid">
     <h1>JavaDoc</h1>
+    <div><p>''')
+    f.write('Date of generation - ' + str(datetime.utcnow()) + '<br>Version of generator - 2.1')
+    f.write('''</p></div>
     <div class="row">
         <div class="col-sm-4 list-group" style="overflow: auto; margin: 10px;"> <h4>All packages</h4>
             ''')
@@ -41,7 +45,7 @@ def create_index(directory_dirs, directory_files, directory_path, path_to_res):
         <h4>All classes</h4>''')
     for root, dirs, files in os.walk(directory_files):
         for file in files:
-            if 'READMEMD' not in file:
+            if 'READMEMD' not in file and not file[:-5].endswith('MD'):
                 f.write('<a href="'+path_to_res+'/res/files/' + file + '" style="width:auto; font-size:12px"> ' + file.replace('&', '/')[
                                                                                               :-5] + '.java</a>')
     f.write('''
@@ -161,13 +165,9 @@ def show_classes_in_package(directory_dirs, path_to_res):
 
                     if file_p.endswith('.java'):
                         if root_p[len(directory_dirs):].replace('/', '&') != '&':
-                            f.write(s +
-                                    directory_dirs.split('/')[-1] + root_p[
-                                                                    len(directory_dirs):] + '/' + file_p + '</a></li>')
+                            f.write(s + file_p + '</a></li>')
                         else:
-                            f.write('<li><a href="' + path_to_res + '/res/files/' + file_p[:-5] + '.html">' +
-                                    directory_dirs.split('/')[-1] + root_p[
-                                                                    len(directory_dirs):] + file_p + '</a></li>')
+                            f.write('<li><a href="' + path_to_res + '/res/files/' + file_p[:-5] + '.html">' + file_p + '</a></li>')
 
                 break
             f.write('''</ul>
@@ -447,12 +447,10 @@ def create_java_doc_for_one_class(classpath, path_to_res):
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </head>''')
     f.write('<body>')
-    f.write('<a href="../index.html"> All packages</a>')
-
-    f.write('&nbsp;<a href="#variable">variables</a>')
-    f.write('&nbsp;<a href="#method">methods</a>')
-    f.write('&nbsp;<a href="#constructor">constructors</a>')
-    f.write('<br>')
+    f.write('<h1>JavaDoc</h1>')
+    f.write('<div><p>')
+    f.write('Date of Generation - ' + str(datetime.utcnow()) + '<br>Version of generator - 2.1')
+    f.write('</p></div>')
     s = about_java_file()
     if s != '':
         f.write('<br>')

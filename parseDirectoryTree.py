@@ -2,6 +2,7 @@ import os
 import shutil
 
 
+
 def create_directories_files(file_path, path_to_res):
     try:
         os.makedirs(path_to_res + '/res')
