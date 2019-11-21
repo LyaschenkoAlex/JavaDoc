@@ -2,17 +2,14 @@ import os
 from sys import argv
 from parse_java import *
 from parseDirectoryTree import *
+from datetime import datetime
 
 path = ''
 left_block = ''
 
 
-def create_index(directory_dirs, directory_files, directory_path):
-<<<<<<< HEAD
-    f = open(directory_path + '/res/index' + '.html', "w")
-=======
-    f = open(directory_path + '/res\\index' + '.html', "w")
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
+def create_index(directory_dirs, directory_files, directory_path, path_to_res):
+    f = open(path_to_res + '/res/index.html', "w")
     f.write('''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,8 +22,12 @@ def create_index(directory_dirs, directory_files, directory_path):
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </head>
 <body>
+
 <div class="container-fluid">
     <h1>JavaDoc</h1>
+    <div><p>''')
+    f.write('Date of generation - ' + str(datetime.utcnow()) + '<br>Version of generator - 2.1')
+    f.write('''</p></div>
     <div class="row">
         <div class="col-sm-4 list-group" style="overflow: auto; margin: 10px;"> <h4>All packages</h4>
             ''')
@@ -34,9 +35,9 @@ def create_index(directory_dirs, directory_files, directory_path):
         global left_block
 
         for file in files:
-            left_block += '<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('&', '/')[
+            left_block += '<a href="'+path_to_res+'/res/dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('&', '/')[
                                                                                               :-5] + '</a>'
-            f.write('<a href="dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('&', '/')[
+            f.write('<a href="'+path_to_res+'/res/dirs/' + file + '" style="width:auto; font-size:12px">' + file.replace('&', '/')[
                                                                                         :-5] + '</a>')
     f.write('''          
         </div>
@@ -44,8 +45,8 @@ def create_index(directory_dirs, directory_files, directory_path):
         <h4>All classes</h4>''')
     for root, dirs, files in os.walk(directory_files):
         for file in files:
-            if 'READMEMD' not in file:
-                f.write('<a href="files/' + file + '" style="width:auto; font-size:12px"> ' + file.replace('&', '/')[
+            if 'READMEMD' not in file and not file[:-5].endswith('MD'):
+                f.write('<a href="'+path_to_res+'/res/files/' + file + '" style="width:auto; font-size:12px"> ' + file.replace('&', '/')[
                                                                                               :-5] + '.java</a>')
     f.write('''
         </div>
@@ -64,7 +65,7 @@ def create_index(directory_dirs, directory_files, directory_path):
                     alphabet_dict[str(file.split('&')[-1][0])] = '' + str(file.split('/')[-1])
     alphabet_set = sorted(alphabet_set)
     for key in alphabet_dict:
-        f1 = open(directory_path + '/res/alphabetical_index/' + key + '.html', "w")
+        f1 = open(path_to_res + '/res/alphabetical_index/' + key + '.html', "w")
         f1.write('''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,33 +78,35 @@ def create_index(directory_dirs, directory_files, directory_path):
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </head>
 <body>''')
-        f1.write('<a href="../index.html">All packages</a>')
+        f1.write('<a href="' +path_to_res+'/res/'+ 'index.html">All packages</a>')
         href_arr = alphabet_dict[key].split(' ')
         f1.write('<ul class="list-group">')
         for i in href_arr:
+            print(i)
             f1.write(
                 '<li class="list-group-item"><a href="../files/' + i + '"class="btn btn-default">' + i.replace('&',
                                                                                                                '/')[
-                                                                                                     :-5] + '.java</a></li>')
+                                                                                                     :-5] + '</a></li>')
         f1.write('</ul>')
         f1.write('</body>')
         f1.close()
 
     for i in alphabet_set:
         f.write(
-            '<a href="alphabetical_index/' + i.upper() + '.html' + '" style="width:auto; font-size:12px">' + i.upper() + '</a>')
+            '<a href="'+path_to_res+'/res/alphabetical_index/' + i.upper() + '.html' + '" style="width:auto; font-size:12px">' + i.upper() + '</a>')
     f.write('''</div>
     </div>
 </div>
+
 </body>
 </html>''')
     f.close()
 
 
-def show_classes_in_package(directory_dirs):
-    for root, dirs, files in os.walk(directory_dirs + '/res/dirs'):
+def show_classes_in_package(directory_dirs, path_to_res):
+    for root, dirs, files in os.walk(path_to_res + '/res/dirs'):
         for f_d in files:
-            f = open(directory_dirs + '/res/dirs/' + f_d, "w")
+            f = open(path_to_res + '/res/dirs/' + f_d, "w")
             f.write('''<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -125,79 +128,46 @@ def show_classes_in_package(directory_dirs):
                 '<a href="../index.html"> All packages</a></div>' + '<br><br><h4>Directory -&gt; ' + f_d.replace('&',
                                                                                                                  '/')[
                                                                                                      :-5] + '</h4>')
-            t = directory_dirs + '/'.join(f_d.split('&')[1:])[:-5]
-            for root_p, dirs_p, files_p in os.walk(directory_dirs + '/' + '/'.join(f_d.split('&')[1:])[:-5]):
+            t = path_to_res + '/'.join(f_d.split('&')[1:])[:-5]
+            for root_p, dirs_p, files_p in os.walk(directory_path + '/' + '/'.join(f_d.split('&')[1:])[:-5]):
                 if len(dirs_p) > 0:
-                    f.write('<p>Pholders in this directory -&gt;</p>')
+                    f.write('<p>Folders in this directory -&gt;</p>')
                 for dir_p in dirs_p:
                     if root_p[len(directory_dirs):].replace('/', '&') != '&':
-<<<<<<< HEAD
-                        s = directory_dirs.split('/')[-1] + root_p[len(directory_dirs):].replace(
-                            '/', '&') + '&' + dir_p + '.html">'
                         f.write(
-                            '<a href="../dirs/' + directory_dirs.split('/')[-1] + root_p[len(directory_dirs):].replace(
+                            '<a href="' + path_to_res + '/res/dirs/' + directory_dirs.split('/')[-1] + root_p[len(directory_dirs):].replace(
                                 '/', '&') + '&' + dir_p + '.html">' + root_p + '/' + dir_p + '</a>' + '<br>')
                     else:
-                        f.write('<a href="../dirs/' + directory_dirs.split('/')[
-=======
-                        f.write(
-                            '<a href="../dirs/' + directory_dirs.split('\\')[-1] + root_p[len(directory_dirs):].replace(
-                                '/', '&') + '&' + dir_p + '.html">' + root_p + '/' + dir_p + '</a>' + '<br>')
-                    else:
-                        f.write('<a href="../dirs/' + directory_dirs.split('\\')[
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
+                        f.write('<a href="' + path_to_res + '/res/dirs/' + directory_dirs.split('/')[
                             -1] + '&' + dir_p + '.html">' + root_p + dir_p + '</a>' + '<br>')
 
                 f.write('<br>')
                 #############################################3
                 for file_p in files_p:
                     if file_p.endswith('.md'):
-
                         f.write('<p>Readme -&gt; </p>')
                         if root_p[len(directory_dirs):][1:] != '':
-                            f.write('<a href="../files/' + (
-<<<<<<< HEAD
-                                    directory_dirs.split('/')[-1] + '/' + root_p[len(directory_dirs):][
-=======
-                                    directory_dirs.split('\\')[-1] + '/' + root_p[len(directory_dirs):][
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
-                                                                           1:] + '/' + file_p[:-3]).replace('/',
+                            f.write('<a href="'+ path_to_res + '/res/files/' + (f_d[:-5] + '&' + file_p[:-3]).replace('/',
                                                                                                             '&') + 'MD' + '.html">' + root_p + '/' + file_p + '</a>' + '<br>')
                         else:
-                            f.write('<a href="../files/' + (
-<<<<<<< HEAD
-                                    directory_dirs.split('/')[-1] + '/' + root_p[len(directory_dirs):][
-=======
-                                    directory_dirs.split('\\')[-1] + '/' + root_p[len(directory_dirs):][
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
-                                                                           1:] + file_p[:-3]).replace('/',
+                            f.write('<a href="'+ path_to_res + '/res/files/' + ( f_d[:-5] + '&' + file_p[:-3]).replace('/',
                                                                                                       '&') + 'MD' + '.html">' + root_p + file_p + '</a>' + '<br>')
 
                 f.write('<br>')
                 f.write('<ul>')
+                root_p = root[:-1]
+
                 for file_p in files_p:
+
+                    s = '<li><a href="' + path_to_res + '/res/files/' + f_d[:-5] + '&' + file_p[:-5] + '.html">'
+                    s = s.replace('//', '/')
+                    s = s.replace('//', '/')
+
                     if file_p.endswith('.java'):
                         if root_p[len(directory_dirs):].replace('/', '&') != '&':
-<<<<<<< HEAD
-                            f.write('<li><a href="../files/' + directory_dirs.split('/')[-1] + root_p[len(
-                                directory_dirs):].replace('/', '&') + '&' + file_p[:-5] + '.html">' +
-                                    directory_dirs.split('/')[-1] + root_p[
-                                                                     len(directory_dirs):] + '/' + file_p + '</a></li>')
+                            f.write(s + file_p + '</a></li>')
                         else:
-                            f.write('<li><a href="../files/' + directory_dirs.split('/')[-1] + root_p[len(
-                                directory_dirs):].replace('/', '&') + file_p[:-5] + '.html">' +
-                                    directory_dirs.split('/')[-1] + root_p[
-=======
-                            f.write('<li><a href="../files/' + directory_dirs.split('\\')[-1] + root_p[len(
-                                directory_dirs):].replace('/', '&') + '&' + file_p[:-5] + '.html">' +
-                                    directory_dirs.split('\\')[-1] + root_p[
-                                                                     len(directory_dirs):] + '/' + file_p + '</a></li>')
-                        else:
-                            f.write('<li><a href="../files/' + directory_dirs.split('\\')[-1] + root_p[len(
-                                directory_dirs):].replace('/', '&') + file_p[:-5] + '.html">' +
-                                    directory_dirs.split('\\')[-1] + root_p[
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
-                                                                     len(directory_dirs):] + file_p + '</a></li>')
+                            f.write('<li><a href="' + path_to_res + '/res/files/' + file_p[:-5] + '.html">' + file_p + '</a></li>')
 
                 break
             f.write('''</ul>
@@ -209,20 +179,15 @@ def show_classes_in_package(directory_dirs):
             f.close()
 
 
-def write_files(directory_src):
+def write_files(directory_src, path_to_res):
     for root, dirs, files in os.walk(directory_src):
         for file in files:
             if file.endswith('.java'):
-<<<<<<< HEAD
-                s = directory_src + '/res/files/' + directory_src.split('/')[-1] + '&' + root[len(directory_src):].replace('/', '&')[1:] + '&' + file[:-5] + '.html'
-                f = open(s, 'w')
-=======
-                s = directory_src + '/res/files/' + root[len(directory_src):].replace('\\', '&') + \
-                    directory_src.split('\\')[-1] + '&' + file[:-5] + '.html'
+                s = path_to_res + '/res/files/' + root[len(directory_src):].replace('/', '&') + \
+                    directory_src.split('/')[-1] + '&' + file[:-5] + '.html'
                 f = open(
-                    directory_src + '/res/files/' + directory_src.split('\\')[-1] + root[len(directory_src):].replace(
-                        '\\', '&') + '&' + file[:-5] + '.html', 'w')
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
+                    path_to_res + '/res/files/' + directory_src.split('/')[-1] + root[len(directory_src):].replace(
+                        '/', '&') + '&' + file[:-5] + '.html', 'w')
                 read_file(root + '/' + file)
                 f.write('''<!DOCTYPE html>
 <html lang="en">
@@ -242,114 +207,129 @@ def write_files(directory_src):
                 f.write('&nbsp;<a href="#method">methods</a>')
                 f.write('&nbsp;<a href="#constructor">constructors</a>')
                 f.write('<br>')
-                f.write('<br>')
-                f.write('<div><h2>About this class</h2><br>')
+                if len(find_package()) != 0:
+                    f.write('<table class="table table-striped">')
+
+                    f.write('''<thead>
+                <tr>
+                  <th scope="col">Package</th>
+                </tr>
+              </thead>''')
+                    f.write('<tr><td>')
+                    f.write(find_package()[0])
+                    f.write('</tr></td>')
+                    f.write('</tbody></table>')
+
                 s = about_java_file()
                 if s != '':
-                    f.write(s)
-                else:
-                    f.write('NONE')
-                f.write('</div>')
-
-                f.write('<table class="table table-striped">')
-                f.write('''<thead>
-    <tr>
-      <th scope="col">Class</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-                f.write('<tbody>')
-                for i in find_class_interface_enum('class'):
-                    s = ' '.join(i[0:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
-                    f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
-                f.write('</tbody></table>')
-                f.write('<br>')
-
-                f.write('<table class="table table-striped">')
-                f.write('''<thead>
-    <tr>
-      <th scope="col">enum</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-                f.write('<tbody>')
-                for i in find_class_interface_enum('enum'):
-                    s = ' '.join(i[:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
-                    f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
-                    f.write('</tbody></table>')
                     f.write('<br>')
-
-                f.write('<table class="table table-striped">')
-                f.write('''<thead>
-    <tr>
-      <th scope="col">Interface</th>
-      <th scope="col">Documentation</th>
-    </tr>
-  </thead>''')
-                f.write('<tbody>')
-                for i in find_class_interface_enum('interface'):
-                    s = ' '.join(i[:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
+                    f.write('<div><h2>About this class</h2><br>')
+                    f.write('<tbody>')
                     f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
+                    f.write('</div>')
+                if len(find_imports()) != 0:
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
+            <tr>
+              <th scope="col">Imports</th>
+              <th scope="col">Documentation</th>
+            </tr>
+          </thead>''')
+                    f.write('<tbody>')
+                    for i in find_imports():
+                        s = ' '.join(i[:-1])
+                        f.write('<tr>')
+                        f.write('<td>')
+                        f.write(s)
+                        f.write('</td>')
+                        f.write('<td>')
 
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
-                f.write('</tbody></table>')
-                f.write('<br>')
-                f.write('<table class="table table-striped">')
-                f.write('''<thead>
+                        if i[-1] == '':
+                            f.write('NONE')
+                        else:
+                            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
+                        f.write('</td>')
+                        f.write('</tr>')
+                    f.write('</tbody></table>')
+                if len(find_class_interface_enum('class')) != 0:
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
         <tr>
-          <th scope="col">Imports</th>
+          <th scope="col">Class</th>
           <th scope="col">Documentation</th>
         </tr>
       </thead>''')
-                f.write('<tbody>')
-                for i in find_imports():
-                    s = ' '.join(i[:-1])
-                    f.write('<tr>')
-                    f.write('<td>')
-                    f.write(s)
-                    f.write('</td>')
-                    f.write('<td>')
-                    if i[-1] == '':
-                        f.write('NONE')
-                    else:
-                        i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-                        f.write(i[-1][4:-2].replace('*', '<br>'))
-                    f.write('</td>')
-                    f.write('</tr>')
-                f.write('</tbody></table>')
+                    f.write('<tbody>')
+                    for i in find_class_interface_enum('class'):
+                        s = ' '.join(i[0:-1])
+                        f.write('<tr>')
+                        f.write('<td>')
+                        f.write(s)
+                        f.write('</td>')
+                        f.write('<td>')
+                        if i[-1] == '':
+                            f.write('NONE')
+                        else:
+                            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
+                        f.write('</td>')
+                        f.write('</tr>')
+                    f.write('</tbody></table>')
+                    f.write('<br>')
+                if len(find_class_interface_enum('enum')) > 0:
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
+        <tr>
+          <th scope="col">Enum</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+                    f.write('<tbody>')
+                    for i in find_class_interface_enum('enum'):
+                        s = ' '.join(i[:-1])
+                        f.write('<tr>')
+                        f.write('<td>')
+                        f.write(s)
+                        f.write('</td>')
+                        f.write('<td>')
+                        if i[-1] == '':
+                            f.write('NONE')
+                        else:
+                            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
+                        f.write('</td>')
+                        f.write('</tr>')
+                        f.write('</tbody></table>')
+                        f.write('<br>')
+                if len(find_class_interface_enum('interface')) != 0:
+                    f.write('<table class="table table-striped">')
+                    f.write('''<thead>
+        <tr>
+          <th scope="col">Interface</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+                    f.write('<tbody>')
+                    for i in find_class_interface_enum('interface'):
+                        s = ' '.join(i[:-1])
+                        f.write('<tr>')
+                        f.write('<td>')
+                        f.write(s)
+                        f.write('</td>')
+                        f.write('<td>')
+                        if i[-1] == '':
+                            f.write('NONE')
+                        else:
+
+                            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+
+                            f.write(i[-1][4:-2].replace('*', '<br>'))
+                        f.write('</td>')
+                        f.write('</tr>')
+                    f.write('</tbody></table>')
+                    f.write('<br>')
+
                 f.write('<br>')
 
                 f.write('<table class="table table-striped"><a name="variable"></a>')
@@ -452,9 +432,9 @@ def write_files(directory_src):
                 f.close()
 
 
-def create_java_doc_for_one_class(classpath):
+def create_java_doc_for_one_class(classpath, path_to_res):
     read_file(classpath)
-    f = open(classpath[:classpath.rfind('\\')] + classpath[classpath.rfind('\\'):][:-5] + '.html', "w")
+    f = open(path_to_res+ classpath[classpath.rfind('/'):][:-5] + '.html', "w")
     f.write('''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -467,177 +447,170 @@ def create_java_doc_for_one_class(classpath):
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </head>''')
     f.write('<body>')
-    f.write('<a href="../index.html"> All packages</a>')
-
-    f.write('&nbsp;<a href="#variable">variables</a>')
-    f.write('&nbsp;<a href="#method">methods</a>')
-    f.write('&nbsp;<a href="#constructor">constructors</a>')
-    f.write('<br>')
-    f.write('<br>')
-    f.write('<div><h2>About this class</h2><br>')
+    f.write('<h1>JavaDoc</h1>')
+    f.write('<div><p>')
+    f.write('Date of Generation - ' + str(datetime.utcnow()) + '<br>Version of generator - 2.1')
+    f.write('</p></div>')
     s = about_java_file()
     if s != '':
+        f.write('<br>')
+        f.write('<div><h2>About this class</h2>')
         f.write(s)
-    else:
-        f.write('NONE')
-    f.write('</div>')
+        f.write('</div>')
+    if len(find_package()) != 0:
+        f.write('<table class="table table-striped">')
 
-    f.write('<table class="table table-striped">')
-    f.write('''<thead>
-    <tr>
-      <th scope="col">Class</th>
-<<<<<<< HEAD
-      <th scope="col">Documentation</th>
-=======
-      <th scope="col">Comments</th>
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
-    </tr>
-  </thead>''')
-    f.write('<tbody>')
-    for i in find_class_interface_enum('class'):
-        s = ' '.join(i[0:-1])
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(s)
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
-    f.write('</tbody></table>')
-    f.write('<br>')
+        f.write('''<thead>
+                <tr>
+                  <th scope="col">Package</th>
+                </tr>
+              </thead>''')
+        f.write('<tr><td>')
+        f.write(find_package()[0])
+        f.write('</tr></td>')
+        f.write('</tbody></table>')
 
-    f.write('<table class="table table-striped">')
-    f.write('''<thead>
-    <tr>
-      <th scope="col">enum</th>
-<<<<<<< HEAD
-      <th scope="col">Documentation</th>
-=======
-      <th scope="col">Comments</th>
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
-    </tr>
-  </thead>''')
-    f.write('<tbody>')
-    for i in find_class_interface_enum('enum'):
-        s = ' '.join(i[:-1])
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(s)
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
+
+
+    if len(find_imports()) != 0:
+        f.write('<table class="table table-striped">')
+        f.write('''<thead>
+            <tr>
+              <th scope="col">Imports</th>
+              <th scope="col">Documentation</th>
+            </tr>
+          </thead>''')
+        f.write('<tbody>')
+        for i in find_imports():
+            s = ' '.join(i[:-1])
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(s)
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
         f.write('</tbody></table>')
         f.write('<br>')
 
-    f.write('<table class="table table-striped">')
-    f.write('''<thead>
-    <tr>
-      <th scope="col">Interface</th>
-<<<<<<< HEAD
-      <th scope="col">Documentation</th>
-=======
-      <th scope="col">Comments</th>
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
-    </tr>
-  </thead>''')
-    f.write('<tbody>')
-    for i in find_class_interface_enum('interface'):
-        s = ' '.join(i[:-1])
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(s)
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
 
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
-    f.write('</tbody></table>')
-    f.write('<br>')
-    f.write('<table class="table table-striped">')
-    f.write('''<thead>
+    if len(find_class_interface_enum('class')) != 0:
+        f.write('<table class="table table-striped">')
+        f.write('''<thead>
         <tr>
-          <th scope="col">Imports</th>
-<<<<<<< HEAD
+          <th scope="col">Class</th>
           <th scope="col">Documentation</th>
-=======
-          <th scope="col">Comments</th>
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
         </tr>
       </thead>''')
-    f.write('<tbody>')
-    for i in find_imports():
-        s = ' '.join(i[:-1])
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(s)
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
-    f.write('</tbody></table>')
-    f.write('<br>')
+        f.write('<tbody>')
+        for i in find_class_interface_enum('class'):
+            s = ' '.join(i[0:-1])
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(s)
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
+        f.write('</tbody></table>')
+        f.write('<br>')
+    if len(find_class_interface_enum('enum')) != 0:
+        print(find_class_interface_enum('enum'))
+        f.write('<table class="table table-striped">')
+        f.write('''<thead>
+        <tr>
+          <th scope="col">Enum</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+        f.write('<tbody>')
+        for i in find_class_interface_enum('enum'):
+            s = ' '.join(i[:-1])
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(s)
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
+            f.write('</tbody></table>')
+            f.write('<br>')
 
-    f.write('<table class="table table-striped"><a name="variable"></a>')
-    f.write('''<thead>
-    <tr>
-      <th scope="col">Variable</th>
-<<<<<<< HEAD
-      <th scope="col">Documentation</th>
-=======
-      <th scope="col">Comments</th>
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
-    </tr>
-  </thead>''')
-    f.write('<tbody>')
-    for i in find_variables():
-        f.write('<tr>')
-        f.write('<td>')
-        f.write(i[0])
-        f.write('</td>')
-        f.write('<td>')
-        if i[-1] == '':
-            f.write('NONE')
-        else:
-            i[-1] = re.sub(r'\*[*]+', '*', i[-1])
-            f.write(i[-1][4:-2].replace('*', '<br>'))
-        f.write('</td>')
-        f.write('</tr>')
-    f.write('</tbody></table>')
+    if len(find_class_interface_enum('interface')) != 0:
+        f.write('<table class="table table-striped">')
+        f.write('''<thead>
+        <tr>
+          <th scope="col">Interface</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+        f.write('<tbody>')
+        for i in find_class_interface_enum('interface'):
+            s = ' '.join(i[:-1])
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(s)
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
 
-    # f.write('VARIABLES - ' + str(find_variables()))
-    f.write('<br>')
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
+        f.write('</tbody></table>')
+        f.write('<br>')
+
+    if len(find_variables()) != 0:
+        f.write('<table class="table table-striped"><a name="variable"></a>')
+        f.write('''<thead>
+        <tr>
+          <th scope="col">Variable</th>
+          <th scope="col">Documentation</th>
+        </tr>
+      </thead>''')
+        f.write('<tbody>')
+        for i in find_variables():
+            f.write('<tr>')
+            f.write('<td>')
+            f.write(i[0])
+            f.write('</td>')
+            f.write('<td>')
+            if i[-1] == '':
+                f.write('NONE')
+            else:
+                i[-1] = re.sub(r'\*[*]+', '*', i[-1])
+                f.write(i[-1][4:-2].replace('*', '<br>'))
+            f.write('</td>')
+            f.write('</tr>')
+        f.write('</tbody></table>')
+
+        # f.write('VARIABLES - ' + str(find_variables()))
+        f.write('<br>')
     if find_variables_enum():
         f.write('<table class="table table-striped">')
         f.write('''<thead>
         <tr>
           <th scope="col">Variable enum</th>
-<<<<<<< HEAD
           <th scope="col">Documentation</th>
-=======
-          <th scope="col">Comments</th>
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
         </tr>
       </thead>''')
         f.write('<tbody>')
@@ -659,11 +632,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Method</th>
-<<<<<<< HEAD
       <th scope="col">Documentation</th>
-=======
-      <th scope="col">Comments</th>
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -687,11 +656,7 @@ def create_java_doc_for_one_class(classpath):
     f.write('''<thead>
     <tr>
       <th scope="col">Constructor</th>
-<<<<<<< HEAD
       <th scope="col">Documentation</th>
-=======
-      <th scope="col">Comments</th>
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
     </tr>
   </thead>''')
     f.write('<tbody>')
@@ -718,20 +683,17 @@ def create_java_doc_for_one_class(classpath):
 if __name__ == '__main__':
     key = ''
     directory_path = ''
+    path_to_res = ''
     try:
-        program_path, directory_path, key = argv
+        program_path, directory_path, path_to_res, key = argv
         print(key)
     except:
         print('Error, wrong key')
         exit(-1)
-<<<<<<< HEAD
-    # directory_path = directory_path.replace('/', '\\')
-=======
->>>>>>> 27741ad160cf094a782936d75e2c1163ca9d26d0
-    if key == 'project':
-        create_directories_files(directory_path)
-        create_index(directory_path + '/res/dirs', directory_path + '/res/files', directory_path)
-        show_classes_in_package(directory_path)
-        write_files(directory_path)
-    elif key == 'class':
-        create_java_doc_for_one_class(directory_path)
+    if key == '-p':
+        create_directories_files(directory_path, path_to_res)
+        create_index(path_to_res + '/res/dirs', path_to_res + '/res/files', directory_path, path_to_res)
+        show_classes_in_package(directory_path, path_to_res)
+        write_files(directory_path, path_to_res)
+    elif key == '-c':
+        create_java_doc_for_one_class(directory_path, path_to_res)
