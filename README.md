@@ -1,6 +1,5 @@
 "# JavaDoc" 
-<br>
-Final version of JavaDoc
+<br>I hope is is final version of JavaDoc
 <br>
 <br>
 There are 2 keys, '-c' and '-p'
