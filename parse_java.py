@@ -24,7 +24,7 @@ def read_file(path_to_file):
         about_file = java_file[:index].replace('\n', '<br>')
         java_file = java_file[index:]
     ans = ''
-    while java_file.count('/*') != 0:
+    while java_file.count('/*\n') != 0:
         index = java_file.find('/*')
         ans = ''
         while not ans.endswith('*/'):
@@ -104,8 +104,9 @@ def find_class_interface_enum(class_interface):
                 for p in arr_imports:
                     import_java = p[0].split('.')[-1]
                     in_class = re.findall(r'[^\w]' + import_java + '[^\w]', i)
-                    if len(in_class) != 0:
-                        i = '<em>used ' + p[0] + '</em><br>' + i
+                    if '*' not in import_java and import_java != '':
+                        if len(in_class) != 0:
+                            i = '<em>used ' + p[0] + '</em><br>' + i
 
                 class_arrays.append([i.strip(), comment])
     return class_arrays
@@ -134,8 +135,9 @@ def find_variables():
                     for p in find_imports():
                         import_java = p[0].split('.')[-1]
                         in_class = re.findall(r'[^\w]' + import_java + '[^\w]', i)
-                        if len(in_class) != 0:
-                            i = '<em>used ' + p[0] + '</em><br>' + i
+                        if '*' not in import_java and import_java != '':
+                            if len(in_class) != 0:
+                                i = '<em>used ' + p[0] + '</em><br>' + i
 
                     variables_arr.append([i.strip(), comment])
         else:
@@ -158,8 +160,9 @@ def find_variables():
                     for p in find_imports():
                         import_java = p[0].split('.')[-1]
                         in_class = re.findall(r'[^\w]' + import_java + '[^\w]', i)
-                        if len(in_class) != 0:
-                            i = '<em>used ' + p[0] + '</em><br>' + i
+                        if '*' not in import_java and import_java != '':
+                            if len(in_class) != 0:
+                                i = '<em>used ' + p[0] + '</em><br>' + i
 
 
                     variables_arr.append([i.strip(), comment])
@@ -215,8 +218,9 @@ def find_methods():
                 for p in find_imports():
                     import_java = p[0].split('.')[-1]
                     in_class = re.findall(r'[^\w]' + import_java + '[^\w]', i)
-                    if len(in_class) != 0:
-                        i = '<em>used ' + p[0] + '</em><br>' + i
+                    if '*' not in import_java and import_java != '':
+                        if len(in_class) != 0:
+                            i = '<em>used ' + p[0] + '</em><br>' + i
 
                 if method_name[::-1] not in classname:
                     methods_arr.append([i.strip(), comment])
@@ -246,14 +250,28 @@ def find_constructors():
 
 
 def find_imports():
+    # comments_c = re.findall(r'~comment\d+~', i)
+    # for j in comments_c:
+    #     i = i.replace(j, '')
+    # classname = i
+    # comment = ''
+    # i = i + '{'
+    # i = i[:-1]
+    # i = i.replace('<', '&lt;').replace('>', '&gt;')
+    #
+    # if len(comments_c) > 0:
+    #     comment = comments[int(comments_c[-1][8:-1])]
+    #     comment = comment.replace('<', '&lt;').replace('>', '&gt;')
     ret_imports_arr = []
     imports_arr = re.findall(r'[^;]+import[^;]+', java_file)
     for i in imports_arr:
-        comment = ''
-        comments = re.findall(r'/\*\*[^`]+\*/', i)
-        for j in comments:
-            comment += j
+        comments_c = re.findall(r'~comment\d+~', i)
+        for j in comments_c:
             i = i.replace(j, '')
+        comment = ''
+        if len(comments_c) > 0:
+            comment = comments[int(comments_c[-1][8:-1])]
+            comment = comment.replace('<', '&lt;').replace('>', '&gt;')
         ret_imports_arr.append([i.replace('>', '&gt;').replace('<', '&lt;').strip(),
                                 comment.replace('>', '&gt;').replace('<', '&lt;').strip()])
     return ret_imports_arr
